@@ -1,0 +1,8 @@
+global:
+    config_path: <your she config path>
+    host_static_ip: <your machine ip> 
+    host_docker0_ip: 172.17.42.1
+    log_mnt_path: /opt/data
+
+kafka:
+    topics: '"topic1 topic2"'

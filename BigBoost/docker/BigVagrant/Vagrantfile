@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# load the configuration
+require 'yaml'
+conf = YAML.load_file 'config/config.yml'
+config_path = conf['global']['config_path']
+host_static_ip = conf['global']['host_static_ip']
+kafka_topics = conf['kafka']['topics']
+log_mnt_path = conf['global']['log_mnt_path']
+currentDir = File.expand_path File.dirname(__FILE__)
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] ||= 'docker'
+
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.require_version ">= 1.6.0"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.synced_folder '.', '/vagrant'
+
+  config.vm.define "spark" do |node|
+    node.vm.provider "docker" do |d|
+      d.name = "bigboost-spark"
+      d.image = "droyuki/bigboost-spark"
+     # d.link("holmes-mysql:holmes-mysql.spn.tw.trendnet.org")
+      d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
+      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
+      #d.create_args = ["--volumes-from", "holmes-kafka"]
+      d.cmd = ["sh", "spark-shell.sh"]
+    end
+    node.vm.hostname = "bigboost-spark"
+    node.ssh.username = "root"
+    node.ssh.port = "22"
+  end
+end

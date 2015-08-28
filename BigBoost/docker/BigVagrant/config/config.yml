@@ -1,0 +1,8 @@
+global:
+    config_path: /vagrant/BigBoost/docker/BigVagrant/config/
+    host_static_ip: 10.0.2.15 
+    host_docker0_ip: 172.17.42.1
+    log_mnt_path: /opt/data
+
+kafka:
+    topics: '"topic1 topic2"'
