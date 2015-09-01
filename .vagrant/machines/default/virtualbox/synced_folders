@@ -1,1 +1,1 @@
-{"virtualbox":{"/lab-devops":{"guestpath":"/lab-devops","hostpath":"/Users/WeiChen/Project/lab-devops","disabled":false},"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/WeiChen/Project/lab-devops","disabled":false}}}
+{"virtualbox":{"/lab-devops":{"guestpath":"/lab-devops","hostpath":"/Users/WeiChen/Project/lab-devops","disabled":false},"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/WeiChen/Project/lab-devops","disabled":false},"/Users/WeiChen/Project":{"guestpath":"/Users/WeiChen/Project","hostpath":"/Users/WeiChen/Project/lab-devops","disabled":false}}}

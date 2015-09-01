@@ -3,20 +3,16 @@
 
 $script = <<SCRIPT
 echo "Installing vagrant..."
-sudo apt-get update
-sudo apt-get -y install vagrant
+sudo wget "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb"
+sudo dpkg -i /vagrant_1.7.4_x86_64.deb
 echo "done!"
 echo "Installing Docker..."
-sudo apt-get -y install docker.io
-sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
-sudo sed -i '$acomplete -F _docker docker' /etc/bash_completion.d/docker.io
-sudo service docker start
-echo "done!"
+curl -sSL https://get.docker.com/ | sh
+sudo usermod -aG docker vagrant
 echo "Grant docker access right to vagrant user"
-sudo usermod -a -G docker vagrant
+sudo usermod -aG docker vagrant
 echo "Closing iptables..."
-service iptables stop
-chkconfig iptables off
+sudo ufw disable
 echo "OK!"
 SCRIPT
 
