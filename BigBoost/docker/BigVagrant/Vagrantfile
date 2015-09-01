@@ -36,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "mongodb" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-mongodb"
-      d.image = "droyuki/bigboost-mongodb"
+      d.image = "droyuki/bigboost-mongodb:v1"
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/mongodb:/opt/mongodb/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
     end
     node.vm.hostname = "bigboost-mongodb"
