@@ -1,2 +1,2 @@
 # BigBoost
-```Project folder: /project
+Project folder: /project
