@@ -18,21 +18,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder '.', '/vagrant'
 
-#  config.vm.define "spark" do |node|
-#    node.vm.provider "docker" do |d|
-#      d.name = "spark_master"
-#      d.image = "droyuki/bigboost-spark"
-#     # d.link("holmes-mysql:holmes-mysql.spn.tw.trendnet.org")
-#      d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
-#      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
-#      #d.create_args = ["--volumes-from", "holmes-kafka"]
-#      d.cmd = ["sh", "spark-shell.sh"]
-#    end
-#    node.vm.hostname = "bigboost-spark"
-#    node.ssh.username = "root"
-#    node.ssh.port = "22"
-#  end
-
   config.vm.define "mongodb" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-mongodb"
@@ -43,4 +28,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.ssh.username = "root"
     node.ssh.port = "22"
  end
+ config.vm.define "spark" do |node|
+    node.vm.provider "docker" do |d|
+      d.name = "bigboost-spark"
+      d.image = "droyuki/bigboost-spark:v3"
+      d.link("bigboost-mongodb:bigboost-mongodb")
+      d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
+      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
+      #d.create_args = ["--volumes-from", "holmes-kafka"]
+      d.cmd = ["start-spark.sh"]
+    end
+    node.vm.hostname = "bigboost-spark"
+    node.ssh.username = "root"
+    node.ssh.port = "22"
+  end
 end
