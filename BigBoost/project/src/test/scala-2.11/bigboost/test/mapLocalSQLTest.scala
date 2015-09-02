@@ -8,8 +8,8 @@ import utils.SparkFunSuite
 class mapLocalSQLTest extends SparkFunSuite {
   localTest("SparkTest") { sc =>
     val fakeRDD = sc.parallelize(Array("Fake RDD A", "Fae RDD B"))
-    //bigboost.test.mapLocalSQL.printRDD(fakeRDD)
-    //val actual = bigboost.test.mapLocalSQL.printRDD(fakeRDD)
-    assertResult(2)(2)
+    bigboost.test.mapLocalSQL.printRDD(fakeRDD)
+    val actual = bigboost.test.mapLocalSQL.printRDD(fakeRDD)
+    assertResult(2)(actual)
   }
 }
