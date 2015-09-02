@@ -1,1 +1,4 @@
-.vagrant*
+.vagrant/
+.DS_Store
+.idea/
+BigBoost/project/target/
