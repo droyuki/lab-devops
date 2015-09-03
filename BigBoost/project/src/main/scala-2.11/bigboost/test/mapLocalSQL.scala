@@ -16,6 +16,10 @@ case class Model(rowkey: Option[String], title: Option[String], content: Option[
 
 object mapLocalSQL {
   def main(args: Array[String]) {
+    if (args.length != 4) {
+      System.err.println("Usage: mapLocalSQL <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
+      System.exit(1)
+    }
     val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList) = args
     def createContext(appName: String, checkpointDirectory: String, timeFrame: Long): StreamingContext = {
       val sparkConf = new SparkConf().setAppName(appName)

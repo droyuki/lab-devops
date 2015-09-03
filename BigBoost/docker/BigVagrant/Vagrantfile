@@ -28,11 +28,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.ssh.username = "root"
     node.ssh.port = "22"
  end
+
+config.vm.define "kafka" do |node|
+    node.vm.provider "docker" do |d| 
+      d.name = "bigboost-kafka"
+      d.image = "droyuki/bigboost-kafka:v1"
+      d.ports = ["2181:2181","9092:9092"]
+      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/kafka:/opt/kafka/config", "#{currentDir}/NAS:/NAS","/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
+      d.cmd = ["start_kafka.sh", "-t", kafka_topics, "-hoip", host_static_ip]
+    end 
+    node.vm.hostname = "bigboost-kafka"
+    node.ssh.username = "root"
+    node.ssh.port = "22"
+  end 
+
  config.vm.define "spark" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-spark"
       d.image = "droyuki/bigboost-spark:v3"
       d.link("bigboost-mongodb:bigboost-mongodb")
+      d.link("bigboost-kafka:bigboost-kafka")
       d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "holmes-kafka"]
