@@ -58,7 +58,7 @@ if [ -n "$topics" ]; then
         ext="${topic##*.}"
         if [ "$ext" == "proc" ]; then
             $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper bigboost-kafka:2181 --replication-factor 1 --partitions 3 --config retention.ms=8640000000 --config segment.ms=8640000000 --topic $topic
-        elif [ "$ext" == "even" || "$ext" == "odd" ]; then
+        elif [ "$ext" == "even" ] || [ "$ext" == "odd" ]; then
             $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper bigboost-kafka:2181 --replication-factor 1 --partitions 3 --config retention.ms=31536000000 --config segment.ms=31536000000 --topic $topic
         else
             $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper bigboost-kafka:2181 --replication-factor 1 --partitions 3 --topic $topic
