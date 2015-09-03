@@ -2,4 +2,5 @@
 .DS_Store
 .idea/
 BigBoost/project/target/
-BigBoost/project/project/
+BigBoost/project/project/project/
+BigBoost/project/project/target/

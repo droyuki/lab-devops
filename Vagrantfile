@@ -4,7 +4,7 @@
 $script = <<SCRIPT
 echo "Installing vagrant..."
 sudo wget "https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.4_x86_64.deb"
-sudo dpkg -i /vagrant_1.7.4_x86_64.deb
+sudo dpkg -i vagrant_1.7.4_x86_64.deb
 echo "done!"
 echo "Installing Docker..."
 curl -sSL https://get.docker.com/ | sh
@@ -13,6 +13,8 @@ echo "Grant docker access right to vagrant user"
 sudo usermod -aG docker vagrant
 echo "Closing iptables..."
 sudo ufw disable
+sudo apt-get install -y sysv-rc-conf
+sysv-rc-conf ufw off
 echo "OK!"
 SCRIPT
 
