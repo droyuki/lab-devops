@@ -37,6 +37,7 @@ object mapLocalSQL {
       jsonf.foreachRDD(
         (rdd: RDD[String], time: Time) => {
           printRDD(rdd)
+          alphabetCount(rdd)
         }
       )
       ssc
@@ -49,6 +50,20 @@ object mapLocalSQL {
     ssc.start()
     ssc.awaitTermination()
     mappingLocalSQL()
+  }
+
+  def alphabetCount(rdd: RDD[String]): (Int, Int) = {
+    val returnMe1 = rdd.flatMap(_.split(" "))
+      .map(_.length)
+      .fold(0)((count: Int, w: Int) => count + w)
+
+    val returnMe2 = rdd.flatMap(_.split(" "))
+      .map(_.length)
+      .reduce(
+        (count: Int, w: Int) => count + w
+      )
+    println("[COUNT]"+returnMe1)
+    (returnMe1, returnMe2)
   }
 
   def mappingLocalSQL() {
