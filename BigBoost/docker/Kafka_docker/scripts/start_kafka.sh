@@ -57,16 +57,16 @@ if [ -n "$topics" ]; then
         echo "=== create $topic topic ==="
         ext="${topic##*.}"
         if [ "$ext" == "proc" ]; then
-            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 3 --config retention.ms=8640000000 --config segment.ms=8640000000 --topic $topic
+            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 1 --config retention.ms=8640000000 --config segment.ms=8640000000 --topic $topic
         elif [ "$ext" == "even" ] || [ "$ext" == "odd" ]; then
-            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 3 --config retention.ms=31536000000 --config segment.ms=31536000000 --topic $topic
+            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 1 --config retention.ms=31536000000 --config segment.ms=31536000000 --topic $topic
         else
-            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 3 --topic $topic
+            $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 1 --topic $topic
         fi  
     done
 else
     echo "=== create default topic \"test\" ==="
-    $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 3 --topic test
+    $KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 1 --topic test
 fi
 
 # execute ssh as a foreground program
