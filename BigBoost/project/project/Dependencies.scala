@@ -4,7 +4,6 @@ object Version {
   val akka      = "2.3.9"
   val logback   = "1.1.2"
   val mockito   = "1.10.19"
-  val scala     = "2.11.7"
   val scalaTest = "2.2.4"
   val slf4j     = "1.7.6"
   val spark     = "1.4.1"
