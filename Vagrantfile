@@ -11,6 +11,7 @@ curl -sSL https://get.docker.com/ | sh
 sudo usermod -aG docker vagrant
 echo "Grant docker access right to vagrant user"
 sudo usermod -aG docker vagrant
+sudo usermod -a -G sudo vagrant
 echo "Closing iptables..."
 sudo ufw disable
 sudo apt-get install -y sysv-rc-conf
