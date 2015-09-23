@@ -1,9 +1,0 @@
-[0m[[0minfo[0m] [0m[32mLocalTestSuite:[0m[0m
-[0m[[0minfo[0m] [0m[31mException encountered when attempting to run a suite with class name: example.LocalTestSuite *** ABORTED ***[0m[0m
-[0m[[0minfo[0m] [0m[31m  java.lang.UnsatisfiedLinkError: no jep in java.library.path[0m[0m
-[0m[[0minfo[0m] [0m[31m  at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1865)[0m[0m
-[0m[[0minfo[0m] [0m[31m  at java.lang.Runtime.loadLibrary0(Runtime.java:870)[0m[0m
-[0m[[0minfo[0m] [0m[31m  at java.lang.System.loadLibrary(System.java:1122)[0m[0m
-[0m[[0minfo[0m] [0m[31m  at jep.Jep$TopInterpreter$1.run(Jep.java:118)[0m[0m
-[0m[[0minfo[0m] [0m[31m  at java.lang.Thread.run(Thread.java:745)[0m[0m
-[0m[[0minfo[0m] [0m[31m  ...[0m[0m
