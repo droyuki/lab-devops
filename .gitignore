@@ -1,8 +1,9 @@
 .vagrant/
 .DS_Store
+*.DS_Store
 .idea/
 *.class
-*.cache
+*.[Cc]ache
 BigBoost/project/target/
 BigBoost/project/project/project/
 BigBoost/project/project/target/
