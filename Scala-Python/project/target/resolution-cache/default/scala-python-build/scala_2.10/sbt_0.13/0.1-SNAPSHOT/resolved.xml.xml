@@ -4,8 +4,8 @@
 		module="scala-python-build"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20150907171523"
-		e:scalaVersion="2.10" e:sbtVersion="0.13"
+		publication="20150909150345"
+		e:sbtVersion="0.13" e:scalaVersion="2.10"
 	>
 		<description>
 		scala-python-build
