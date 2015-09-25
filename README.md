@@ -13,7 +13,7 @@ Vagrant + ubuntu 14.04 + docker
 
 > **Note:**
 > 
-> - Project directory: lab-devops/Bigboost/project/
+> - Project directory: lab-devops/BigBoost/project/
 > - Vagrant will mount repo folder under /vagrant in host vm. 
 > - Host VM will mount /vagrant into /vagrant in container.
 
