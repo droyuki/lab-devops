@@ -45,7 +45,7 @@ config.vm.define "kafka" do |node|
  config.vm.define "spark" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-spark"
-      d.image = "droyuki/bigboost-spark:v3"
+      d.image = "droyuki/bigboost-spark:v4"
       d.link("bigboost-mongodb:bigboost-mongodb")
       d.link("bigboost-kafka:bigboost-kafka")
       d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
