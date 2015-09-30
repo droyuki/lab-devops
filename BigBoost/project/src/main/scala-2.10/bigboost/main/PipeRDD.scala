@@ -1,0 +1,58 @@
+package bigboost.main
+
+import kafka.serializer.StringDecoder
+import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.kafka.KafkaUtils
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+
+/**
+ * Created by WeiChen on 2015/9/27.
+ */
+object PipeRDD extends SparkContext{
+  def main(args: Array[String]) {
+    if (args.length != 5) {
+      System.err.println("Usage: StreamingTest <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,> <scriptPath>")
+      System.exit(1)
+    }
+    val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList, scriptPath) = args
+    def createContext(appName: String, checkpointDirectory: String, timeFrame: Long): StreamingContext = {
+      val sparkConf = new SparkConf().setAppName(appName)
+      val ssc = new StreamingContext(sparkConf, Seconds(timeFrame))
+      ssc.checkpoint(checkpointDirectory)
+      ssc
+    }
+    def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String, brokerList: String, topicList: String): StreamingContext = {
+      val ssc = createContext(AppName, checkpointDirectory, timeframe.toLong)
+      val kafkaParams = Map("metadata.broker.list" -> brokerList)
+      val topics = topicList.split(",").toSet
+      val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
+      stream.foreachRDD(rdd =>
+        pipeData(rdd.map(_._2), scriptPath)
+      )
+      ssc
+    }
+    val ssc = StreamingContext.getOrCreate(checkpointDirectory,
+      () => {
+        function2CreateContext("BigBoost", checkpointDirectory, timeframe, kafkaBrokerList, topicList)
+      }
+    )
+    ssc.start()
+    ssc.awaitTermination()
+  }
+
+  def pipeData(rdd: RDD[String], scriptPath: String): RDD[String] = {
+    println("[Input RDD Count]"+rdd.count())
+    val dataProc = rdd.pipe(scriptPath)
+    dataProc.collect().foreach(t => println("[Proc Data]" + t))
+    dataProc
+  }
+
+  def pipe2R(rdd: RDD[String], scriptPath: String): RDD[String] = {
+    println("[Input RDD Count]"+rdd.count())
+    val dataProc = rdd.repartition(1).pipe(scriptPath)
+    dataProc.collect().foreach(t => println("[Proc Data]" + t))
+    dataProc
+  }
+
+}
