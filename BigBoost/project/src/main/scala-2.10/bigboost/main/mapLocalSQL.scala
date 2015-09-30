@@ -1,10 +1,9 @@
 package bigboost.main
 
 import kafka.serializer.StringDecoder
-import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
  * Created by WeiChen on 2015/9/2.
@@ -13,19 +12,14 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 //case class Model(rowkey: Option[String], title: Option[String], content: Option[String], dtime: Option[Long])
 
-object mapLocalSQL {
+object mapLocalSQL extends SparkContext{
   def main(args: Array[String]) {
     if (args.length != 4) {
       System.err.println("Usage: mapLocalSQL <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
       System.exit(1)
     }
     val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList) = args
-    def createContext(appName: String, checkpointDirectory: String, timeFrame: Long): StreamingContext = {
-      val sparkConf = new SparkConf().setAppName(appName)
-      val ssc = new StreamingContext(sparkConf, Seconds(timeFrame))
-      ssc.checkpoint(checkpointDirectory)
-      ssc
-    }
+
     def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String, brokerList: String, topicList: String): StreamingContext = {
       val ssc = createContext(AppName, checkpointDirectory, timeframe.toLong)
       val kafkaParams = Map("metadata.broker.list" -> brokerList)
