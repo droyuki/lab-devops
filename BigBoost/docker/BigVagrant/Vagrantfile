@@ -50,6 +50,9 @@ config.vm.define "kafka" do |node|
       d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.env = {
+        "LANG"=>"C.UTF-8"
+      }
       d.cmd = ["start-spark.sh"]
     end
     node.vm.hostname = "bigboost-spark"
@@ -67,6 +70,9 @@ config.vm.define "kafka" do |node|
       d.ports = ["15555:8080","14040:4040","18081:8081","14042:4042","17077:7077", "14041:4041"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.env = {
+        "LANG"=>"C.UTF-8"
+      }
       d.cmd = ["start-sparkWorker.sh"]
     end
     node.vm.hostname = "bigboost-sparkWorker"
