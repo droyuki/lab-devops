@@ -6,7 +6,7 @@ object Version {
   val mockito   = "1.10.19"
   val scalaTest = "2.2.4"
   val slf4j     = "1.7.6"
-  val spark     = "1.4.1"
+  val spark     = "1.5.0"
 }
 
 object Library {

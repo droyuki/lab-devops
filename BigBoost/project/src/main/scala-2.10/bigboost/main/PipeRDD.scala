@@ -22,7 +22,7 @@ object PipeRDD extends SparkContext{
       val topics = topicList.split(",").toSet
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd =>
-        pipeData(rdd.map(_._2), scriptPath)
+        pipe2R(rdd.map(_._2), scriptPath)
       )
       ssc
     }

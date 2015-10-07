@@ -11,7 +11,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 object KafkaStreaming extends SparkContext {
   def main(args: Array[String]) {
     if (args.length != 4) {
-      System.err.println("Usage: StreamingTest <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
+      System.err.println("Usage: KafkaStreaming <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
       System.exit(1)
     }
     val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList) = args
@@ -28,7 +28,7 @@ object KafkaStreaming extends SparkContext {
     }
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        function2CreateContext("BigBoost", checkpointDirectory, timeframe, kafkaBrokerList, topicList)
+        function2CreateContext("KafkaStreaming", checkpointDirectory, timeframe, kafkaBrokerList, topicList)
       }
     )
     ssc.start()
