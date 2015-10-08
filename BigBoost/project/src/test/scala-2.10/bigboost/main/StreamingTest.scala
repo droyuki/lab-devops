@@ -9,7 +9,7 @@ class StreamingTest extends SparkFunSuite {
   localTest("Pipe to shell script Test"){ sc =>
     val input = sc.parallelize(Array("Ready to pipe", "This a sentence!!"))
     val scriptPath = " src/test/resources/testScript.sh"
-    bigboost.main.PipeRDD.pipeData(input, scriptPath)
+    bigboost.main.PipeRDD.pipe2R(input, scriptPath)
     assertResult(1)(1)
   }
 
