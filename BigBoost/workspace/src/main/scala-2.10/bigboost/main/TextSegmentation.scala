@@ -1,6 +1,7 @@
 package bigboost.main
 
 import java.util
+import com.spreada.utils.chinese.ZHConverter
 import kafka.serializer.StringDecoder
 import org.ansj.dic.LearnTool
 import org.ansj.splitWord.analysis.{ToAnalysis, NlpAnalysis}
@@ -39,9 +40,14 @@ object TextSegmentation extends SparkContext {
     ssc.awaitTermination()
   }
 
-//  def zhConverter(rdd:RDD[String]):RDD[String] ={
-//    rdd.map(text => ZHConverter.convert(text, ZHConverter.SIMPLIFIED))
-//  }
+  def zhConverter(rdd:RDD[String]):RDD[String] ={
+    val converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);
+    rdd.map(text => converter.convert(text))
+  }
+
+  def zhConverterNoRdd(rdd:Array[String]):Array[String] ={
+    rdd.map(text => ZHConverter.convert(text, ZHConverter.TRADITIONAL))
+  }
 
   def ansjTo(rdd: RDD[String]): RDD[String] = {
     val ssc = rdd.sparkContext
