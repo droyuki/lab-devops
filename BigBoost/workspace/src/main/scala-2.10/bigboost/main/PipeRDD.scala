@@ -22,7 +22,7 @@ object PipeRDD extends SparkContext{
       val topics = topicList.split(",").toSet
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd =>
-        pipe2R(rdd.map(_._2), scriptPath)
+        pipeData(rdd.map(_._2), scriptPath)
       )
       ssc
     }
@@ -38,13 +38,6 @@ object PipeRDD extends SparkContext{
   def pipeData(rdd: RDD[String], scriptPath: String): RDD[String] = {
     println("[Input RDD Count]"+rdd.count())
     val dataProc = rdd.pipe(scriptPath)
-    dataProc.collect().foreach(t => println("[Proc Data]" + t))
-    dataProc
-  }
-
-  def pipe2R(rdd: RDD[String], scriptPath: String): RDD[String] = {
-    println("[Input RDD Count]"+rdd.count())
-    val dataProc = rdd.repartition(1).pipe(scriptPath)
     dataProc.collect().foreach(t => println("[Proc Data]" + t))
     dataProc
   }

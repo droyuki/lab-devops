@@ -26,7 +26,7 @@ object TextSegmentation extends SparkContext {
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         //val zhCN = zhConverter(rdd.map(_._2))
-        PipeRDD.pipeData(ansj(rdd.map(_._2)), scriptPath)
+        PipeRDD.pipeData(ansjTo(rdd.map(_._2)), scriptPath)
       })
       ssc
     }
@@ -43,7 +43,7 @@ object TextSegmentation extends SparkContext {
 //    rdd.map(text => ZHConverter.convert(text, ZHConverter.SIMPLIFIED))
 //  }
 
-  def ansj(rdd: RDD[String]): RDD[String] = {
+  def ansjTo(rdd: RDD[String]): RDD[String] = {
     val ssc = rdd.sparkContext
     if (rdd.count() != 0)
       println("[Input RDD Count]" + rdd.count())
