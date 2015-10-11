@@ -1,10 +1,10 @@
 package bigboost.main
 
 import java.util
+
 import com.spreada.utils.chinese.ZHConverter
 import kafka.serializer.StringDecoder
-import org.ansj.dic.LearnTool
-import org.ansj.splitWord.analysis.{ToAnalysis, NlpAnalysis}
+import org.ansj.splitWord.analysis.{NlpAnalysis, ToAnalysis}
 import org.ansj.util.FilterModifWord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
@@ -45,10 +45,6 @@ object TextSegmentation extends SparkContext {
     rdd.map(text => converter.convert(text))
   }
 
-  def zhConverterNoRdd(rdd:Array[String]):Array[String] ={
-    rdd.map(text => ZHConverter.convert(text, ZHConverter.TRADITIONAL))
-  }
-
   def ansjTo(rdd: RDD[String]): RDD[String] = {
     val ssc = rdd.sparkContext
     if (rdd.count() != 0)
@@ -84,11 +80,4 @@ object TextSegmentation extends SparkContext {
     })
   }
 
-  def ansjNoRdd(input:String): Array[String]={
-    val learnTool = new LearnTool()
-    var temp = NlpAnalysis.parse(input, learnTool)
-    temp = NlpAnalysis.parse(input, learnTool)
-    val word = for (i <- Range(0, temp.size())) yield temp.get(i).getName
-    word.toArray
-  }
 }
