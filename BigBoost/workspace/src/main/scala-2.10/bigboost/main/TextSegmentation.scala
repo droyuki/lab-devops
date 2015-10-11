@@ -9,6 +9,7 @@ import org.ansj.util.FilterModifWord
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
+
 /**
  * Created by WeiChen on 2015/10/7.
  */
@@ -27,7 +28,7 @@ object TextSegmentation extends SparkContext {
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         //val zhCN = zhConverter(rdd.map(_._2))
-        PipeRDD.pipeData(ansjTo(rdd.map(_._2)), scriptPath)
+        PipeRDD.pipeData(ansj(rdd.map(_._2)), scriptPath)
       })
       ssc
     }
@@ -40,44 +41,43 @@ object TextSegmentation extends SparkContext {
     ssc.awaitTermination()
   }
 
-  def zhConverter(rdd:RDD[String]):RDD[String] ={
-    val converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED);
+  def toSimplified(rdd: RDD[String]): RDD[String] = {
+    val converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED)
     rdd.map(text => converter.convert(text))
   }
 
-  def ansjTo(rdd: RDD[String]): RDD[String] = {
-    val ssc = rdd.sparkContext
-    if (rdd.count() != 0)
-      println("[Input RDD Count]" + rdd.count())
-    rdd.map { x =>
-      val temp = ToAnalysis.parse(x)
-      //加入停用词
-      FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
-      //加入停用词性
-      FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
-      val filter = FilterModifWord.modifResult(temp)
-      //此步骤将会只取分词，不附带词性
-      val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
-      word.mkString("\\t")
-    }
-  }
+  def ansj(rdd: RDD[String], method: String = "NLP"): RDD[String] = method match {
+    case "To" =>
+      if (rdd.count() != 0)
+        println("[Input RDD Count]" + rdd.count())
+      rdd.map { x =>
+        val temp = ToAnalysis.parse(x)
+        //加入停用词
+        FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
+        //加入停用词性
+        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+        val filter = FilterModifWord.modifResult(temp)
+        //此步骤将会只取分词，不附带词性
+        val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
+        word.mkString("\\t")
+      }
 
-  def ansjNLP(rdd: RDD[String]): RDD[String] = {
-    val ssc = rdd.sparkContext
-    if (rdd.count() != 0)
-      println("[Input RDD Count]" + rdd.count())
-    rdd.mapPartitions( p =>
-    p.map { x =>
-      val temp = NlpAnalysis.parse(x)
-      //加入停用词
-      FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
-      //加入停用词性
-      FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
-      val filter = FilterModifWord.modifResult(temp)
-      //此步骤将会只取分词，不附带词性
-      val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
-      word.mkString("\\t")
-    })
+
+    case "NLP" =>
+      if (rdd.count() != 0)
+        println("[Input RDD Count]" + rdd.count())
+      rdd.mapPartitions(p =>
+        p.map { x =>
+          val temp = NlpAnalysis.parse(x)
+          //加入停用词
+          FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
+          //加入停用词性
+          FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+          val filter = FilterModifWord.modifResult(temp)
+          //此步骤将会只取分词，不附带词性
+          val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
+          word.mkString("\\t")
+        })
   }
 
 }
