@@ -66,18 +66,17 @@ object TextSegmentation extends SparkContext {
     case "NLP" =>
       if (rdd.count() != 0)
         println("[Input RDD Count]" + rdd.count())
-      rdd.mapPartitions(p =>
-        p.map { x =>
-          val temp = NlpAnalysis.parse(x)
-          //加入停用词
-          FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
-          //加入停用词性
-          FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
-          val filter = FilterModifWord.modifResult(temp)
-          //此步骤将会只取分词，不附带词性
-          val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
-          word.mkString("\\t")
-        })
+      rdd.map { x =>
+        val temp = NlpAnalysis.parse(x)
+        //加入停用词
+        FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
+        //加入停用词性
+        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+        val filter = FilterModifWord.modifResult(temp)
+        //此步骤将会只取分词，不附带词性
+        val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
+        word.mkString("\\t")
+      }
   }
 
 }
