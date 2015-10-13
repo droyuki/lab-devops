@@ -4,6 +4,7 @@ import java.util
 
 import com.spreada.utils.chinese.ZHConverter
 import kafka.serializer.StringDecoder
+import org.ansj.app.keyword.KeyWordComputer
 import org.ansj.splitWord.analysis.{NlpAnalysis, ToAnalysis}
 import org.ansj.util.FilterModifWord
 import org.apache.spark.rdd.RDD
@@ -44,6 +45,15 @@ object TextSegmentation extends SparkContext {
   def toSimplified(rdd: RDD[String]): RDD[String] = {
     val converter = ZHConverter.getInstance(ZHConverter.SIMPLIFIED)
     rdd.map(text => converter.convert(text))
+  }
+
+  def topN(rdd: RDD[String], top: Int): RDD[String] = {
+    val kwc = new KeyWordComputer(top)
+    rdd.map { content =>
+      val temp = kwc.computeArticleTfidf(content)
+      val words = for (i <- Range(0, top)) yield temp.get(i).getName
+      words.mkString("\\t")
+    }
   }
 
   def ansj(rdd: RDD[String], method: String = "NLP"): RDD[String] = method match {

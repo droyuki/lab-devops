@@ -3,7 +3,7 @@ package bigboost.standalone
 import java.util
 
 import com.spreada.utils.chinese.ZHConverter
-import org.ansj.dic.LearnTool
+import org.ansj.app.keyword.KeyWordComputer
 import org.ansj.splitWord.analysis.{NlpAnalysis, ToAnalysis}
 import org.ansj.util.FilterModifWord
 
@@ -15,12 +15,14 @@ object Local {
     rdd.map(text => ZHConverter.convert(text, ZHConverter.TRADITIONAL))
   }
 
-  def ansjNoRdd(input: String): Array[String] = {
-    val learnTool = new LearnTool()
-    var temp = NlpAnalysis.parse(input, learnTool)
-    temp = NlpAnalysis.parse(input, learnTool)
-    val word = for (i <- Range(0, temp.size())) yield temp.get(i).getName
-    word.toArray
+  //return top N key words
+  def topN(rdd: Array[String], top: Int): Array[String] = {
+    val kwc = new KeyWordComputer(top)
+    rdd.map { content =>
+      val temp = kwc.computeArticleTfidf(content)
+      val words = for (i <- Range(0, top)) yield temp.get(i).getName
+      words.mkString("\\t")
+    }
   }
 
   def ansj(rdd: Array[String], method: String = "NLP"): Array[String] = method match {
