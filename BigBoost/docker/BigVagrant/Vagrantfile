@@ -18,16 +18,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.synced_folder '.', '/vagrant'
 
- ## config.vm.define "mongodb" do |node|
- ##   node.vm.provider "docker" do |d|
- ##     d.name = "bigboost-mongodb"
- ##     d.image = "droyuki/bigboost-mongodb:v1"
- ##     d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/mongodb:/opt/mongodb/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
- ##   end
- ##   node.vm.hostname = "bigboost-mongodb"
- ##   node.ssh.username = "root"
- ##   node.ssh.port = "22"
- ##end
+ config.vm.define "mongodb" do |node|
+   node.vm.provider "docker" do |d|
+     d.name = "bigboost-mongodb"
+     d.image = "droyuki/bigboost-mongodb:v1"
+     d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/mongodb:/opt/mongodb/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro", "/Racademy:/opt/Racademy"]
+   end
+   node.vm.hostname = "bigboost-mongodb"
+   node.ssh.username = "root"
+   node.ssh.port = "22"
+end
 
 config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d| 
@@ -47,8 +47,8 @@ config.vm.define "kafka" do |node|
       d.name = "bigboost-spark"
       d.image = "droyuki/bigboost-spark:v4"
      # d.link("bigboost-mongodb:bigboost-mongodb")
-      d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041"]
-      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
+      d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041", "19000:9000"]
+      d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro", "/Racademy:/opt/Racademy"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
       d.env = {
         "LANG"=>"C.UTF-8"
