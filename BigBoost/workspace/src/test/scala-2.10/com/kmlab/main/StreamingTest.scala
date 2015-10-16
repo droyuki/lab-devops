@@ -1,5 +1,6 @@
-package bigboost.main
+package com.kmlab.main
 
+import com.kmlab.main.PipeRDD
 import utils.SparkFunSuite
 
 /**
@@ -9,7 +10,7 @@ class StreamingTest extends SparkFunSuite {
   localTest("Pipe to shell script Test"){ sc =>
     val input = sc.parallelize(Array("Ready to pipe", "This a sentence!!"))
     val scriptPath = " src/test/resources/testScript.sh"
-    bigboost.main.PipeRDD.pipeData(input, scriptPath)
+    PipeRDD.pipeData(input, scriptPath)
     assertResult(1)(1)
   }
 

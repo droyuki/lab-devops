@@ -1,4 +1,4 @@
-package bigboost.main
+package com.kmlab.main
 
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{StreamingContext, Seconds}

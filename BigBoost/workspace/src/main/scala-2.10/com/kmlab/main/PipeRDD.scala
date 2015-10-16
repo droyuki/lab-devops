@@ -1,4 +1,4 @@
-package bigboost.main
+package com.kmlab.main
 
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD

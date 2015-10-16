@@ -1,8 +1,10 @@
-package bigboost.main
+package com.kmlab.main
 
 import java.util
 
+import com.kmlab.utils.KafkaProducerUtil
 import com.spreada.utils.chinese.ZHConverter
+import kafka.producer.KeyedMessage
 import kafka.serializer.StringDecoder
 import org.ansj.app.keyword.KeyWordComputer
 import org.ansj.splitWord.analysis.{NlpAnalysis, ToAnalysis}
@@ -29,7 +31,9 @@ object TextSegmentation extends SparkContext {
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         //val zhCN = zhConverter(rdd.map(_._2))
-        PipeRDD.pipeData(ansj(rdd.map(_._2)), scriptPath)
+        val procData = ansj(rdd.map(_._2))
+        PipeRDD.pipeData(procData, scriptPath)
+        sendData(procData, brokerList, "data.proc")
       })
       ssc
     }
@@ -87,6 +91,15 @@ object TextSegmentation extends SparkContext {
         val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
         word.mkString("\\t")
       }
+  }
+
+  def sendData(rdd: RDD[String], brokerList: String, topic: String): Unit = {
+    rdd.foreachPartition { rddPartition =>
+      val producer = KafkaProducerUtil.createProducer(Map("metadata.broker.list" -> brokerList))
+      rddPartition.foreach(data =>
+        producer.send(new KeyedMessage("data.proc", "0", data))
+      )
+    }
   }
 
 }
