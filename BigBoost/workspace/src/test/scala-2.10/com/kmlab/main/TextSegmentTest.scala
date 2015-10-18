@@ -1,25 +1,22 @@
 package com.kmlab.main
 
 import com.kmlab.main
-import com.kmlab.main.TextSegmentation
 import utils.SparkFunSuite
 
 /**
  * Created by WeiChen on 2015/10/7.
  */
 class TextSegmentTest extends SparkFunSuite {
-  localTest("To Test") { sc =>
+  localTest("ANSJ NLP Test") { sc =>
     val text = Array("昨天台股順利突破季線，今天趁勝追擊續攻前波高點8488點，早盤開平高站上8400點後，隨著DRAM股華亞科、南科大漲，台塑四寶也回穩，台積電也維持1.5%左右的漲幅，推升指數持續震盪向上，中場在8450點附近盤整，尾盤拉高順利衝過8488點，終場大漲101.13點，以8495.23點作收，成交量928.86億元。 櫃檯指數今天表現也不弱，在世界等半導體股跟進集中市場表現帶動下，指數也呈現開平走高，終場上漲1.48點，收在最高點122.25點，成交量251.04億元。 台股今天以生醫類股表現最佳，漲幅逾3.5%，橡膠、塑膠、化學生醫、造紙、水泥漲幅也逾2%；半導體、油電燃氣、汽車、玻陶等也有1.5%以上的漲幅。 南科總經理高啟全離職的衝擊已經大幅減")
-    //val oriText = "洁面仪配合洁面深层清洁毛孔 清洁鼻孔面膜碎觉使劲挤才能出一点点皱纹 脸颊毛孔修复的看不见啦 草莓鼻历史遗留问题没辙 脸和脖子差不多颜色的皮肤才是健康的 长期使用安全健康的比同龄人显小五到十岁 28岁的妹子看看你们的鱼尾纹"
     val input = sc.parallelize(text)
     val result = TextSegmentation.ansj(input)
     result.collect().foreach(t => println("[NLP]" + t))
     assertResult(1)(1)
   }
 
-  localTest("ANSJ Test") { sc =>
+  localTest("ANSJ To Test") { sc =>
     val text = Array("昨天台股順利突破季線，今天趁勝追擊續攻前波高點8488點，早盤開平高站上8400點後，隨著DRAM股華亞科、南科大漲，台塑四寶也回穩，台積電也維持1.5%左右的漲幅，推升指數持續震盪向上，中場在8450點附近盤整，尾盤拉高順利衝過8488點，終場大漲101.13點，以8495.23點作收，成交量928.86億元。 櫃檯指數今天表現也不弱，在世界等半導體股跟進集中市場表現帶動下，指數也呈現開平走高，終場上漲1.48點，收在最高點122.25點，成交量251.04億元。 台股今天以生醫類股表現最佳，漲幅逾3.5%，橡膠、塑膠、化學生醫、造紙、水泥漲幅也逾2%；半導體、油電燃氣、汽車、玻陶等也有1.5%以上的漲幅。 南科總經理高啟全離職的衝擊已經大幅減")
-    //val oriText = "洁面仪配合洁面深层清洁毛孔 清洁鼻孔面膜碎觉使劲挤才能出一点点皱纹 脸颊毛孔修复的看不见啦 草莓鼻历史遗留问题没辙 脸和脖子差不多颜色的皮肤才是健康的 长期使用安全健康的比同龄人显小五到十岁 28岁的妹子看看你们的鱼尾纹"
     val input = sc.parallelize(text)
     val result = main.TextSegmentation.ansj(input, "To")
     result.collect().foreach(t => println("[NLP]" + t))
