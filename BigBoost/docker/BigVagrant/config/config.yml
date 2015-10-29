@@ -5,4 +5,4 @@ global:
     log_mnt_path: /opt/data
 
 kafka:
-    topics: '"test data.raw data.proc"'
+    topics: '"test data.raw data.proc ansj.to ansj.nlp ansj.keyword"'

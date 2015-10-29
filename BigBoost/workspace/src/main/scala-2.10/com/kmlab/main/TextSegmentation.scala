@@ -31,10 +31,10 @@ object TextSegmentation extends SparkContext {
       val topics = topicList.split(",").toSet
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
-        //val zhCN = zhConverter(rdd.map(_._2))
-        val procData = ansj(rdd.map(_._2))
-        //PipeRDD.pipeData(procData, scriptPath)
-        send2kafka(procData, brokerList, "data.proc")
+        val raw = rdd.map(_._2)
+        val nlp = ansj(raw)
+        PipeRDD.pipeData(nlp, scriptPath)
+        send2kafka(nlp, brokerList, "ansj.nlp")
       })
       ssc
     }
@@ -63,11 +63,28 @@ object TextSegmentation extends SparkContext {
     }
   }
 
-  def ansj(rdd: RDD[String], method: String = "NLP"): RDD[String] = method match {
+  def ansj(rdd: RDD[String], method: Any = "NLP"): RDD[String] = method match {
+    case "NLP" =>
+      if (rdd.count() != 0)
+        println("[Input RDD Count]" + rdd.count())
+      val procData = rdd.map { x =>
+        val learnTool = new LearnTool();
+        val temp = NlpAnalysis.parse(x, learnTool)
+        //加入停用词
+        FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
+        //加入停用词性
+        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+        val filter = FilterModifWord.modifResult(temp)
+        //此步骤将会只取分词，不附带词性
+        val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
+        word.mkString("\\t")
+      }
+      procData
+
     case "To" =>
       if (rdd.count() != 0)
         println("[Input RDD Count]" + rdd.count())
-      rdd.map { x =>
+      val procData = rdd.map { x =>
         val temp = ToAnalysis.parse(x)
         //加入停用词
         FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
@@ -78,30 +95,41 @@ object TextSegmentation extends SparkContext {
         val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
         word.mkString("\\t")
       }
+      procData
 
-
-    case "NLP" =>
+    case n: Int =>
       if (rdd.count() != 0)
         println("[Input RDD Count]" + rdd.count())
-      rdd.map{ x =>
-          val learnTool = new LearnTool();
-          val temp = NlpAnalysis.parse(x, learnTool)
-          //加入停用词
-          FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
-          //加入停用词性
-          FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
-          val filter = FilterModifWord.modifResult(temp)
-          //此步骤将会只取分词，不附带词性
-          val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
-          word.mkString("\\t")
+      val kwc = new KeyWordComputer(n)
+      val procData = rdd.map { content =>
+        val temp = kwc.computeArticleTfidf(content)
+        val words = for (i <- Range(0, n)) yield temp.get(i).getName
+        words.mkString("\\t")
       }
+      procData
+
+    case _ =>
+      if (rdd.count() != 0)
+        println("[Input RDD Count]" + rdd.count())
+      val procData = rdd.map { x =>
+        val temp = ToAnalysis.parse(x)
+        //加入停用词
+        FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
+        //加入停用词性
+        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+        val filter = FilterModifWord.modifResult(temp)
+        //此步骤将会只取分词，不附带词性
+        val word = for (i <- Range(0, filter.size())) yield filter.get(i).getName
+        word.mkString("\\t")
+      }
+      procData
   }
 
   def send2kafka(rdd: RDD[String], brokerList: String, topic: String): Unit = {
     rdd.foreachPartition { rddPartition =>
       val producer = KafkaProducerUtil.createProducer(Map("metadata.broker.list" -> brokerList))
       rddPartition.foreach(data =>
-        producer.send(new KeyedMessage("data.proc", "0", data))
+        producer.send(new KeyedMessage(topic, "0", data))
       )
     }
   }
