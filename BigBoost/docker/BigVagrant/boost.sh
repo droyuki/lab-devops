@@ -41,25 +41,44 @@ check_config() {
         exit 1
     fi  
 }
+wait_dockerUp() {
+    retryTime=10
+    count=0
+    
+    #check spark
+    until [ $count -ge $retryTime ]
+    do
+        response=$(curl --write-out %{http_code} --silent --output /dev/null http://$server:5555)
+        if [ "$response" == "200" ]; then echo "Spark is up!"; break; fi
+        count=$[$count+1]
+        sleep 1
+    done
 
-start_she() {
+    count=0
+    #check hadoop
+    until [ $count -ge $retryTime ]
+    do
+        response=$(curl --write-out %{http_code} --silent --output /dev/null http://$server:50070)
+        if [ "$response" == "200" ]; then echo "Hadoop is up!"; break; fi
+        count=$[$count+1]
+        sleep 1
+    done
+}
+start_boo() {
     start=`date +%s`
     check_config
     vagrant up --no-parallel
-    if [ -n "$opt_conf" ]; then
-        wait_dockerUp
-        scripts/sparkJobSubmit.sh $opt_conf
-    fi
+    wait_dockerUp
     end=`date +%s`
     runtime=$((end-start))
     echo "You spent $runtime sec to got a big boost !"
 }
 
-stop_she() {
+stop_boo() {
     vagrant halt
 }
 
-destroy_she() {
+destroy_boo() {
     vagrant destroy -f
     rm -rf .vagrant
 }
@@ -69,17 +88,11 @@ display_help() {
 Usage: $0 <command>
 commands:
   help                          display this help text
-  start                         start sherlock holmes engine 
-  stop                          stop sherlock holmes engine
-  destroy                       destroy sherlock holmes engine (all container)
-  updateCheck                   check the docker images is up to date or not
-  packer                        tar the SHE folder content to she.tar.gz
+  start                         start containers 
+  stop                          stop containers
+  destroy                       destroy all containers
   kill				rm all stopped container
 
-start options:
-  --algo, -a <algorithm name>    start spark program after SHE start
-                                ex: --algo DDI
-                                ex: --algo help (display algorithm name)
 EOF
 }
 case "$action" in
@@ -88,16 +101,13 @@ case "$action" in
         exit 0
         ;;
     start)
-        start_she
+        start_boo
         ;;
     stop)
-        stop_she
+        stop_boo
         ;;
     destroy)
-        destroy_she
-        ;;
-    updateCheck)
-        update_check
+        destroy_boo
         ;;
     checkContainer)
         wait_dockerUp
@@ -105,11 +115,8 @@ case "$action" in
     kill)
         kill_docker
         ;;
-    packer)
-        packer_she
-        ;;
     *)
-        echo "Unknown command"
+        echo "Unknown command @@"
         echo
         display_help
         exit 1
