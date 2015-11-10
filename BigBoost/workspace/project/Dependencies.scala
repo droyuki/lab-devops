@@ -20,7 +20,8 @@ object Library {
   val sparkCore      	= "org.apache.spark"  %% "spark-core"               % Version.spark
   val sparkSql       	= "org.apache.spark"  %% "spark-sql"                % Version.spark
   val sparkGraphX    	= "org.apache.spark"  %% "spark-graphx"             % Version.spark
-  val sparkStreamKafka  = "org.apache.spark"  %% "spark-streaming-kafka"    % Version.spark
+  val sparkMlLib        = "org.apache.spark" %% "spark-mllib"             % Version.spark
+  val sparkStreamKafka  = "org.apache.spark"  %% "spark-streaming-kafka"  % Version.spark
 }
 
 object Dependencies {
@@ -32,6 +33,7 @@ object Dependencies {
     sparkStreaming 	% "provided",
     sparkSql 		% "provided",
     sparkGraphX 	% "provided",
+    sparkMlLib % "provided",
     sparkStreamKafka,
     scalaTest      	% "test",
     akkaActor,
