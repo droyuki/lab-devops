@@ -8,7 +8,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 /**
  * Created by WeiChen on 2015/9/27.
  */
-object KafkaStreaming extends SparkContext {
+object KafkaStreaming extends CreateSparkContext {
   def main(args: Array[String]) {
     if (args.length != 4) {
       System.err.println("Usage: KafkaStreaming <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")

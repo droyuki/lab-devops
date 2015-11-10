@@ -8,7 +8,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 /**
  * Created by WeiChen on 2015/9/27.
  */
-object PipeRDD extends SparkContext{
+object PipeRDD extends CreateSparkContext{
   def main(args: Array[String]) {
     if (args.length != 5) {
       System.err.println("Usage: StreamingTest <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,> <scriptPath>")

@@ -12,7 +12,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 //case class Model(rowkey: Option[String], title: Option[String], content: Option[String], dtime: Option[Long])
 
-object mapLocalSQL extends SparkContext{
+object mapLocalSQL extends CreateSparkContext{
   def main(args: Array[String]) {
     if (args.length != 4) {
       System.err.println("Usage: mapLocalSQL <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
