@@ -1,17 +1,16 @@
 package com.kmlab.main
 
+import com.kmlab.main.ANSJ._
 import com.kmlab.utils.KafkaProducerUtil
 import kafka.producer.KeyedMessage
 import kafka.serializer.StringDecoder
 import org.ansj.splitWord.analysis.ToAnalysis
 import org.apache.spark.SparkContext
-import org.apache.spark.mllib.feature.{IDF, HashingTF}
+import org.apache.spark.mllib.feature.{HashingTF, IDF}
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
-import ANSJ._
-import PipeRDD._
 /**
  * Created by WeiChen on 2015/10/7.
  */
@@ -30,8 +29,8 @@ object TextSegmentation extends CreateSparkContext {
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         val raw = rdd.map(_._2)
-        val nlp = ansj(raw,"To")
-        pipeData(nlp, scriptPath)
+        val nlp = ansj(raw)
+        //pipeData(nlp, scriptPath)
         send2kafka(nlp, brokerList, "ansj.nlp")
       })
       ssc
