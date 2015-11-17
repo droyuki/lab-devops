@@ -6,9 +6,9 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaUtils
 
 /**
- * Created by WeiChen on 2015/9/27.
- */
-object PipeRDD extends CreateSparkContext{
+  * Created by WeiChen on 2015/9/27.
+  */
+object PipeRDD extends CreateSparkContext {
   def main(args: Array[String]) {
     if (args.length != 5) {
       System.err.println("Usage: StreamingTest <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,> <scriptPath>")
@@ -36,7 +36,9 @@ object PipeRDD extends CreateSparkContext{
   }
 
   def pipeData(rdd: RDD[String], scriptPath: String): RDD[String] = {
-    println("[Input RDD Count]"+rdd.count())
+    val count = rdd.count()
+    if (count != 0)
+      println("[Input RDD Count]" + count)
     val dataProc = rdd.pipe(scriptPath)
     dataProc.collect().foreach(t => println("[Proc Data]" + t))
     dataProc

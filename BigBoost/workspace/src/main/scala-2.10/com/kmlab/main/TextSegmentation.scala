@@ -34,12 +34,12 @@ object TextSegmentation extends CreateSparkContext {
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         val raw = rdd.map(_._2)
-        val proc = ansj(raw)
+        val proc = ansj(raw,"NLP")
           .map(tfTopN(_, 30))
           .map { list =>
             list.map { case (term, freq) => term }
           }.map(_.mkString("\t"))
-        PipeRDD.pipeData(proc, scriptPath)
+        //PipeRDD.pipeData(proc, scriptPath)
         send2kafka(proc, brokerList, "ansj.nlp")
       })
       ssc
