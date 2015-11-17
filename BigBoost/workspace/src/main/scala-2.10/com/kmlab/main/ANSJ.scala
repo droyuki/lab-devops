@@ -52,7 +52,7 @@ object ANSJ {
         val learnTool = new LearnTool()
         val temp = NlpAnalysis.parse(x, learnTool)
         FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
-        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e")
+        FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e", "p", "q", "a", "cc", "pba", "c", "pbei", "uyy", "ulian", "y", "o", "en")
         val filter = FilterModifWord.modifResult(temp)
         filter.toArray.map(_.toString).toList
       }
