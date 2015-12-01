@@ -10,13 +10,15 @@ import jieba
 
 def extract(path, output_file):
     f = open(output_file, 'a+')
+    i = 0
     for filename in os.listdir(path):
         if filename.startswith('.'):
             continue
         os.chdir(path)
         if os.path.isfile(filename):
-            print("Loading: %s" % filename)
-            f.write("Loading: ".encode('utf-8') + filename.encode('utf-8') + "\n".encode('utf-8'))
+            i += 1
+            # print("%d. %s" % (i, filename))
+            f.write(str(i).encode('utf-8') + ". ".encode('utf-8') + filename.encode('utf-8') + "\n".encode('utf-8'))
             content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
             words = jieba.cut(content, cut_all=False, HMM=False)
             word_set = set(list(words))
@@ -24,7 +26,7 @@ def extract(path, output_file):
             for word in word_set:
                 if p.match(word) and len(word) > 2:
                     f.write(word.encode('utf-8') + "\n".encode('utf-8'))
-            f.write("------\n".encode('utf-8'))
+            # f.write("------\n".encode('utf-8'))
     print("Output: %s" % output_file)
 
 
