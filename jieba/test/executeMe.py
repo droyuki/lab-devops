@@ -29,11 +29,11 @@ def extract(path, output_file):
 
 
 def show_hint():
-    print("Usage: \n"
-          "  commands:\n"
-          "    -n          extract negative words\n"
-          "    -p          extract positive words\n"
-          "    -f          extract finance words")
+    print("Usage: executeMe.py <command>\n"
+          "commands:\n"
+          "  -n          extract negative words\n"
+          "  -p          extract positive words\n"
+          "  -f          extract finance words\n")
 
 
 def main(argv):

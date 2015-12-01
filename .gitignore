@@ -11,3 +11,6 @@ Scala-Python/target/
 Scala-Python/project/project/
 Scala-Python/project/target/
 */.sbtserver
+jieba/
+scala-python-example/
+jep/
