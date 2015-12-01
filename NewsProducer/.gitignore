@@ -1,0 +1,10 @@
+.vagrant/
+.DS_Store
+*.DS_Store
+.idea/
+*.class
+*.[Cc]ache
+./project/target/
+./project/project/project/
+./project/project/target/
+*/.sbtserver
