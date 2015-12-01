@@ -34,7 +34,7 @@ object ANSJ {
     case "To" =>
       if (rdd.count() != 0)
         println("[Input RDD Count]" + rdd.count())
-      val procData = rdd.map { x =>
+      rdd.map { x =>
         FilterModifWord.insertStopWords(util.Arrays.asList("r", "n"))
         FilterModifWord.insertStopWord("多") ;
         FilterModifWord.insertStopNatures("w", null, "ns", "r", "u", "e", "p", "a", "cc", "pba", "c", "pbei", "uyy", "ulian", "y", "o", "en")
@@ -43,7 +43,6 @@ object ANSJ {
         val filter = FilterModifWord.modifResult(temp)
         filter.toArray.map(_.toString).toList //.split("/")).filter(_.nonEmpty).map(_ (0)).toList
       }
-      procData
 
     case "NLP" =>
       if (rdd.count() != 0)

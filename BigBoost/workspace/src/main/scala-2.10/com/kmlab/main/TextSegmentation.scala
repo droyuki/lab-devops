@@ -21,21 +21,21 @@ import org.apache.spark.streaming.kafka.KafkaUtils
   */
 object TextSegmentation extends CreateSparkContext {
   def main(args: Array[String]) {
-    if (args.length != 5) {
-      System.err.println("Usage: TextSegmentation <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>  <scriptPath>")
+    if (args.length != 4) {
+      System.err.println("Usage: TextSegmentation <checkpointDirectory> <timeframe> <kafka-brokerList> <topic,...,>")
       System.exit(1)
     }
-    val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList, scriptPath) = args
+    val Array(checkpointDirectory, timeframe, kafkaBrokerList, topicList) = args
 
-    def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String, brokerList: String, topicList: String, scriptPath: String): StreamingContext = {
+    def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String, brokerList: String, topicList: String): StreamingContext = {
       val ssc = createContext(AppName, checkpointDirectory, timeframe.toLong)
       val kafkaParams = Map("metadata.broker.list" -> brokerList)
       val topics = topicList.split(",").toSet
       val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       stream.foreachRDD(rdd => {
         val raw = rdd.map(_._2)
-        val proc = ansj(raw, "NLP")
-          .map(tfTopN(_, 30))
+        val procA = ansj(raw, "NLP")
+        val proc = procA.map(tfTopN(_, 30))
           .map { list =>
             list.map { case (term, freq) =>
               //parse word class
@@ -136,17 +136,18 @@ object TextSegmentation extends CreateSparkContext {
                 "wb" -> "百分號千分號",
                 "wh" -> "單位符號")
               val wordClass = term.split("/")(1)
-              term.replace(wordClass, wordClass+"("+wordClassMap.getOrElse(wordClass, "Unknown")+")")
+              term.replace(wordClass, wordClass + "(" + wordClassMap.getOrElse(wordClass, "Unknown") + ")")
             }
           }.map(_.mkString("\t"))
-        //PipeRDD.pipeData(proc, scriptPath)
+        val newTerms = combination(procA).map{list => list.mkString("\t")}
         send2kafka(proc, brokerList, "ansj.nlp")
+        send2kafka(newTerms, brokerList, "ansj.nlp")
       })
       ssc
     }
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        function2CreateContext("TextSegmentation", checkpointDirectory, timeframe, kafkaBrokerList, topicList, scriptPath)
+        function2CreateContext("TextSegmentation", checkpointDirectory, timeframe, kafkaBrokerList, topicList)
       }
     )
     ssc.start()
@@ -159,6 +160,28 @@ object TextSegmentation extends CreateSparkContext {
       rddPartition.foreach(data =>
         producer.send(new KeyedMessage(topic, "0", data))
       )
+    }
+  }
+
+  def combination(rdd: RDD[List[String]]): RDD[List[String]] = {
+    rdd.map { list =>
+      val returnList = for {i <- 0 to list.length - 2} yield {
+        val term = list(i).split("/")
+        val nextTerm = list(i + 1).split("/")
+        val newWord = if ((term(1) == "n" && nextTerm(1) == "v")
+          || (term(1) == "vf" && nextTerm(1) == "vi")
+          || (term(1) == "n" && nextTerm(1) == "n")
+          || (term(1) == "vn" && nextTerm(1) == "n")
+          || (term(1) == "b" && nextTerm(1).matches("n"))
+          || (term(1) == "a" && nextTerm(1).matches("n"))
+          || (term(1) == "v" && nextTerm(1).matches("a"))) {
+          term(0) + nextTerm(0)
+        } else {
+          "NULL"
+        }
+        newWord
+      }
+      returnList.toList.filterNot(_ == "NULL")
     }
   }
 
