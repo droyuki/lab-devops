@@ -70,7 +70,7 @@ def set_dict(dictionary, user_dict):
 
 
 def show_hint():
-    print("Usage: executeMe.py <command>\n"
+    print("Usage: runMe.py <command>\n"
           "commands:\n"
           "  -c          just cutting words.\n"
           "  -n          extract negative words.\n"
