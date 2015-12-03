@@ -11,6 +11,11 @@ import jieba
 import jieba.posseg as pseg
 
 
+def set_dict(dictionary, user_dict):
+    jieba.set_dictionary(dictionary)
+    jieba.load_userdict(user_dict)
+
+
 def gen_dict(folder_path, output_file):
     title_counter = 0
     dict_set = set()
@@ -35,47 +40,65 @@ def gen_dict(folder_path, output_file):
     for word in dict_set:
         f.write(word.encode('utf-8') + "\n".encode('utf-8'))
     f.close()
+    print("\nParse %s articles" % title_counter)
     print("Output: %s" % output_file)
 
 
 def extract(path, output_file):
     f = open(output_file, 'a+')
-    i = 0
     dict_set = set()
+    title_counter = 0
     for filename in os.listdir(path):
         if filename.startswith('.'):
             continue
         os.chdir(path)
         if os.path.isfile(filename):
-            i += 1
-            # f.write(str(i).encode('utf-8') + ". ".encode('utf-8') + filename.encode('utf-8') + "\n".encode('utf-8'))
+            title_counter += 1
             content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
             all_words = pseg.cut(content, HMM=False)
             word_set = set(list(all_words))
             pattern = re.compile('[一-龥]')
             for word in word_set:
                 if pattern.match(word.word) and len(word.word) > 1:
-                    dict_set.add(word)
+                    dict_set.add(word.word)
                     f.write(word.encode('utf-8') + "\n".encode('utf-8'))
-                    # f.write("------\n".encode('utf-8'))
-    # for word in dict_set:
-    #     f.write(word.encode('utf-8') + "\n".encode('utf-8'))
     f.close()
+    print("\nParse %s articles" % title_counter)
     print("Output: %s" % output_file)
 
 
-def set_dict(dictionary, user_dict):
-    jieba.set_dictionary(dictionary)
-    jieba.load_userdict(user_dict)
+def find_subject(path, output_file):
+    dict_set = set()
+    title_counter = 0
+    for filename in os.listdir(path):
+        if filename.startswith('.'):
+            continue
+        os.chdir(path)
+        if os.path.isfile(filename):
+            title_counter += 1
+            content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
+            all_words = pseg.cut(content, HMM=False)
+            word_set = set(list(all_words))
+            pattern = re.compile('[n]')
+            for word in word_set:
+                if pattern.match(word.flag) and len(word.word) > 1:
+                    dict_set.add(word)
+    f = open(output_file, 'a+')
+    for word in dict_set:
+        f.write(word.word.encode('utf-8') + "/".encode('utf-8') + word.flag.encode('utf-8') + "\n".encode('utf-8'))
+    f.close()
+    print("\nParse %s articles" % title_counter)
+    print("Output: %s" % output_file)
 
 
 def show_hint():
-    print("Usage: runMe.py <command> <option>\n"
-          "commands:\n"
+    print("\nUsage: runMe.py <command> <option>\n"
+          " commands:\n"
           "  -c          just cutting words.\n"
           "  -n          extract negative words.\n"
           "  -p          extract positive words.\n"
           "  -f          extract finance words.\n"
+          "  -s          find subjects"
           "options:\n"
           "  -e          extracting part of speech.\n")
 
@@ -83,7 +106,8 @@ def show_hint():
 def main(argv):
     desktop = os.path.join(os.path.expanduser("~"), 'Desktop')
     path = desktop + "/News/"
-    dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d_%H%M')
+    t_start = time.time()
+    dt = datetime.datetime.fromtimestamp(t_start).strftime('%Y%m%d_%H%M')
     if len(argv) < 2:
         show_hint()
         sys.exit()
@@ -134,10 +158,20 @@ def main(argv):
                     gen_dict(path, output_file)
                 else:
                     show_hint()
+            elif option == 's':
+                print('Finding subjects ...')
+                set_dict('../extra_dict/dict.txt.big', "total.txt")
+                if len(argv) == 2:
+                    output_file = desktop + u'/新聞主詞_' + dt + '.txt'
+                    find_subject(path, output_file)
+                else:
+                    show_hint()
             else:
                 show_hint()
     else:
         show_hint()
+    t_stop = time.time()
+    print("---Total cost %s seconds---" % round(t_stop - t_start, 2))
 
 
 if __name__ == '__main__':
