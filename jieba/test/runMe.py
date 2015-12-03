@@ -81,7 +81,8 @@ def show_hint():
 
 
 def main(argv):
-    path = u"/Users/WeiChen/Project/lab-devops/BigBoost/News/"
+    desktop = os.path.join(os.path.expanduser("~"), 'Desktop')
+    path = desktop + "/News/"
     dt = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d_%H%M')
     if len(argv) < 2:
         show_hint()
@@ -94,10 +95,10 @@ def main(argv):
                 print('Extracting negative words ...')
                 set_dict('ntusd-positive.txt', 'ntusd-positive.txt')
                 if len(argv) == 3 and argv[2] == "-e":
-                    output_file = u'/Users/WeiChen/Desktop/新聞正向情緒詞庫(含詞性)_' + dt + '.txt'
+                    output_file = desktop + u'/新聞正向情緒詞庫(含詞性)_' + dt + '.txt'
                     extract(path, output_file)
                 elif len(argv) == 2:
-                    output_file = u'/Users/WeiChen/Desktop/新聞正向情緒詞庫_' + dt + '.txt'
+                    output_file = desktop + u'/新聞正向情緒詞庫_' + dt + '.txt'
                     gen_dict(path, output_file)
                 else:
                     show_hint()
@@ -105,10 +106,10 @@ def main(argv):
                 print('Extracting positive words ...')
                 set_dict('ntusd-negative.txt', 'ntusd-negative.txt')
                 if len(argv) == 3 and argv[2] == "-e":
-                    output_file = u'/Users/WeiChen/Desktop/新聞負向情緒詞庫(含詞性)_' + dt + '.txt'
+                    output_file = desktop + u'/新聞負向情緒詞庫(含詞性)_' + dt + '.txt'
                     extract(path, output_file)
                 elif len(argv) == 2:
-                    output_file = u'/Users/WeiChen/Desktop/新聞負向情緒詞庫_' + dt + '.txt'
+                    output_file = desktop + u'/新聞負向情緒詞庫_' + dt + '.txt'
                     gen_dict(path, output_file)
                 else:
                     show_hint()
@@ -116,21 +117,21 @@ def main(argv):
                 print('Extracting finance words ...')
                 set_dict('financeDict.txt', 'financeDict.txt')
                 if len(argv) == 3 and argv[2] == "-e":
-                    output_file = u'/Users/WeiChen/Desktop/新聞財經詞(含詞性)_' + dt + '.txt'
+                    output_file = desktop + u'/新聞財經詞(含詞性)_' + dt + '.txt'
                     extract(path, output_file)
                 elif len(argv) == 2:
-                    output_file = u'/Users/WeiChen/Desktop/新聞財經詞_' + dt + '.txt'
+                    output_file = desktop + u'/新聞財經詞_' + dt + '.txt'
                     gen_dict(path, output_file)
                 else:
                     show_hint()
             elif option == 'c':
                 print('Extracting part of speech ...')
-                set_dict('/Users/WeiChen/Project/lab-devops/jieba/extra_dict/dict.txt.big', "total.txt")
+                set_dict('../extra_dict/dict.txt.big', "total.txt")
                 if len(argv) == 3 and argv[2] == "-e":
-                    output_file = u'/Users/WeiChen/Desktop/新聞斷詞(含詞性)_' + dt + '.txt'
+                    output_file = desktop + u'/新聞斷詞(含詞性)_' + dt + '.txt'
                     extract(path, output_file)
                 elif len(argv) == 2:
-                    output_file = u'/Users/WeiChen/Desktop/新聞斷詞_' + dt + '.txt'
+                    output_file = desktop + u'/新聞斷詞_' + dt + '.txt'
                     gen_dict(path, output_file)
                 else:
                     show_hint()
