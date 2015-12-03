@@ -27,7 +27,7 @@ def gen_dict(folder_path, output_file):
             word_set = set(list(words))
             p = re.compile('[一-龥]')
             for word in word_set:
-                if p.match(word) and len(word) > 2:
+                if p.match(word) and len(word) > 1:
                     dict_set.add(word)
                     # f.write(word.encode('utf-8') + "\n".encode('utf-8'))
                     # f.write("------\n".encode('utf-8'))
@@ -54,7 +54,7 @@ def extract(path, output_file):
             word_set = set(list(all_words))
             pattern = re.compile('[一-龥]')
             for word in word_set:
-                if pattern.match(word.word) and len(word.word) > 2:
+                if pattern.match(word.word) and len(word.word) > 1:
                     dict_set.add(word)
                     f.write(word.encode('utf-8') + "\n".encode('utf-8'))
                     # f.write("------\n".encode('utf-8'))
@@ -87,7 +87,6 @@ def main(argv):
     if len(argv) < 2:
         show_hint()
         sys.exit()
-
     elif len(argv) == 2 or len(argv) == 3:
         if argv[1].startswith('-'):
             option = argv[1][1:]  # 取出sys.argv[1]的數值但是忽略掉'-'
