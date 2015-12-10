@@ -1,7 +1,7 @@
-package com.kmlab.main
+package com.kmlab.utils
 
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.{StreamingContext, Seconds}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
  * Created by WeiChen on 2015/9/27.

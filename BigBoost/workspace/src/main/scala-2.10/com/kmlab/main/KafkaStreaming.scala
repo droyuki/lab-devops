@@ -1,5 +1,6 @@
 package com.kmlab.main
 
+import com.kmlab.utils.CreateSparkContext
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext

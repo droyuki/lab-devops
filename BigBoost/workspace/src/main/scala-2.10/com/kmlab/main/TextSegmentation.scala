@@ -3,7 +3,7 @@ package com.kmlab.main
 import java.util
 
 import com.kmlab.main.ANSJ._
-import com.kmlab.utils.KafkaProducerUtil
+import com.kmlab.utils.{CreateSparkContext, KafkaProducerUtil}
 import kafka.producer.KeyedMessage
 import kafka.serializer.StringDecoder
 import org.ansj.library.UserDefineLibrary
