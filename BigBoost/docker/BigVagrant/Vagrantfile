@@ -29,6 +29,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #   node.ssh.port = "22"
 #end
 
+config.vm.define "mysql" do |node|
+    node.vm.provider "docker" do |d| 
+      d.name = "bigboost-mysql"
+      d.image = "droyuki/bigboost-mysql:v1"
+      d.ports = ["3306:3306"]
+      d.volumes = ["#{log_mnt_path}:/opt/data", "#{currentDir}/NAS:/NAS","/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
+    end 
+    node.vm.hostname = "bigboost-mysql"
+    node.ssh.username = "root"
+    node.ssh.port = "22"
+  end 
+
 config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d| 
       d.name = "bigboost-kafka"
@@ -67,6 +79,7 @@ config.vm.define "kafka" do |node|
      # d.link("bigboost-mongodb:bigboost-mongodb")
       d.link("bigboost-kafka:bigboost-kafka")
       d.link("bigboost-spark:bigboost-spark")
+      d.link("bigboost-spark:bigboost-mysql")
       d.ports = ["15555:8080","14040:4040","18081:8081","14042:4042","17077:7077", "14041:4041", "29000:9000"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]

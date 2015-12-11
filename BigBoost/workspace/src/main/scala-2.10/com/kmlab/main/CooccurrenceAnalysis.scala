@@ -1,11 +1,11 @@
 package com.kmlab.main
 
 import java.io.File
+import java.sql.DriverManager
 
 import breeze.numerics.sqrt
 import org.apache.spark.mllib.feature.Word2Vec
-import org.apache.spark.mllib.linalg.distributed.{IndexedRowMatrix, IndexedRow}
-import org.apache.spark.rdd.RDD
+import org.apache.spark.rdd.{JdbcRDD, RDD}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -28,7 +28,6 @@ import scala.io.Source._
 object CooccurrenceAnalysis {
   private var localFilePath: File = new File(".")
   private var dfsDirPath: String = ""
-
   private val NPARAMS = 2
 
   private def readFile(filename: String): List[String] = {
@@ -73,16 +72,6 @@ object CooccurrenceAnalysis {
     dfsDirPath = args(i)
   }
 
-  def runLocalWordCount(fileContents: List[String]): Int = {
-    fileContents.flatMap(_.split(" "))
-      .flatMap(_.split("\t"))
-      .filter(_.size > 0)
-      .groupBy(w => w)
-      .mapValues(_.size)
-      .values
-      .sum
-  }
-
   def main(args: Array[String]): Unit = {
     parseArgs(args)
     println("Creating SparkConf")
@@ -98,21 +87,35 @@ object CooccurrenceAnalysis {
     val model = word2vec.fit(input.map(_.toSeq))
 
     val allTerms = sc.makeRDD(input.reduce((x, y) => x ++ y))
-    val indexedAllTerms = allTerms.zipWithIndex().map { case (k, v) => (v, k) }
+    val indexedAllTerms = allTerms.zipWithIndex().map { case (v, k) => (k, v) }
+
     val distinctSet = sc.makeRDD(fileRDD.map(_.split(" ").distinct).reduce((x, y) => x ++ y))
+    val indexedDistinctSet = distinctSet.zipWithIndex().map { case (v, k) => (k, v) }
+
     val distinctJoinSet = distinctSet.cartesian(distinctSet).map(data => (data._1, data._2, 0))
-    val indexedDistinctJoinSet = distinctJoinSet.zipWithIndex().map { case (k, v) => (v, k) }
-    val indexedRow = indexedAllTerms.map{ case(index, term) =>
-        println(term)
-        IndexedRow(index, model.transform(term))
-    }
+    val indexedDistinctJoinSet = distinctJoinSet.zipWithIndex().map { case (v, k) => (k, v) }
 
-    indexedRow.count()
 
-//    val ww = input.zipWithIndex().map{case(k,v) => (v,k)}.lookup(0)
-//    ww(0).contains("依計")
-//    allTerms.collect().contains("依計")
-    val matrix = new IndexedRowMatrix(indexedRow)
+    val indexedVectorInModel = distinctSet.flatMap { term =>
+      try {
+        Some(model.transform(term))
+      } catch {
+        case e: IllegalStateException =>
+          None
+      }
+    }.zipWithIndex().map { case (v, k) => (k, v) }
+
+    val jdbcRDD = new JdbcRDD( sc, () => {
+          Class.forName("com.mysql.jdbc.Driver").newInstance()
+          DriverManager.getConnection("jdbc:mysql://bigboost-mysql:3306/DATA", "root", "")
+        },
+        "SELECT content FROM mysqltest WHERE ID >= ? AND ID <= ?", 1, 100, 3,
+      resultSet => resultSet.getString(1)
+    ).cache()
+
+    print(jdbcRDD.filter(_.contains("success")).count())
+
+
     //    indexedDistinctJoinSet.foreach( case(word1,word2,index)
     //        model.transform(_)
     //      )
@@ -126,8 +129,6 @@ object CooccurrenceAnalysis {
 
       }
     }
-    val t = "UPDATE cooccurrence SET _3 = _3 + 1 WHERE _1 = \"新聞\" AND _2 = \"記者\""
-    sqlContext.sql("SELECT COUNT(*) FROM cooccurrence WHERE _1='建立'").collect().head.getLong(0)
     sc.stop()
   }
 
