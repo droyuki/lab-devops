@@ -62,6 +62,8 @@ config.vm.define "kafka" do |node|
       d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041", "19999:9999", "50070:50070", "9001:9001", "8888:8888"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro", "/Racademy:/opt/Racademy"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.link("bigboost-mysql:bigboost-mysql")
+      d.link("bigboost-kafka:bigboost-kafka")
       d.env = {
         "LANG"=>"C.UTF-8"
       }
@@ -81,6 +83,8 @@ config.vm.define "kafka" do |node|
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
       d.link("bigboost-spark:bigboost-spark")
+      d.link("bigboost-mysql:bigboost-mysql")
+      d.link("bigboost-kafka:bigboost-kafka")
       d.env = {
         "LANG"=>"C.UTF-8"
       }
@@ -100,6 +104,8 @@ config.vm.define "kafka" do |node|
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
       d.link("bigboost-spark:bigboost-spark")
+      d.link("bigboost-mysql:bigboost-mysql")
+      d.link("bigboost-kafka:bigboost-kafka")
       d.env = {
         "LANG"=>"C.UTF-8"
       }
