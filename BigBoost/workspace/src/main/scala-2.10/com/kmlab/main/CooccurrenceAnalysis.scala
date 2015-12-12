@@ -1,40 +1,18 @@
 package com.kmlab.main
 
 import java.io.File
-import java.sql.DriverManager
 
-import breeze.numerics.sqrt
-import org.apache.spark.mllib.feature.Word2Vec
-import org.apache.spark.rdd.{JdbcRDD, RDD}
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.mllib.feature.{Word2VecModel, Word2Vec}
+import org.apache.spark.mllib.rdd.RDDFunctions
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.io.Source._
 
-/**
- * Created by WeiChen on 2015/12/9.
- */
-/**
- * Simple test for reading and writing to a distributed
- * file system.  This example does the following:
- *
- * 1. Reads local file
- * 2. Computes word count on local file
- * 3. Writes local file to a DFS
- * 4. Reads the file back from the DFS
- * 5. Computes word count on the file using Spark
- * 6. Compares the word count results
- */
 object CooccurrenceAnalysis {
   private var localFilePath: File = new File(".")
   private var dfsDirPath: String = ""
   private val NPARAMS = 2
 
-  private def readFile(filename: String): List[String] = {
-    val lineIter: Iterator[String] = fromFile(filename).getLines()
-    val lineList: List[String] = lineIter.toList
-    lineList
-  }
 
   private def printUsage(): Unit = {
     val usage: String = "DFS Read-Write Test\n" +
@@ -52,48 +30,129 @@ object CooccurrenceAnalysis {
       printUsage()
       System.exit(1)
     }
-
     var i = 0
-
     localFilePath = new File(args(i))
     if (!localFilePath.exists) {
       System.err.println("Given path (" + args(i) + ") does not exist.\n")
       printUsage()
       System.exit(1)
     }
-
     if (!localFilePath.isFile) {
       System.err.println("Given path (" + args(i) + ") is not a file.\n")
       printUsage()
       System.exit(1)
     }
-
     i += 1
     dfsDirPath = args(i)
   }
 
   def main(args: Array[String]): Unit = {
     parseArgs(args)
-    println("Creating SparkConf")
-    val conf = new SparkConf().setAppName("Co occurrence Analysis")
+    val conf = new SparkConf().setAppName("Co-occurrence Analysis")
     val sc = new SparkContext(conf)
+    println("Reading file from HDFS")
+    val dfsFilename = dfsDirPath + "/news_word.txt"
+    val fileRDD = sc.textFile(dfsFilename)
+    val pmi = genPmi(fileRDD)
+    val sortedPMI = sortByPmi(pmi,100)
+    val result = cooccurrence(fileRDD)
+    val sortedRes = sortByCount(cooccurrence(fileRDD), 100)
+    val top100 = sortByCount(result, 100)
+    val output = dfsDirPath + "/model/"
+    val fortest = "hdfs://bigboost-spark:9000/testData/model/"
+    genWord2Vec(fileRDD, fortest)
+    val m = loadWord2Vec(sc,fortest)
+    m.findSynonyms("成長",3)
+    sc.stop()
+  }
+
+
+  def loadWord2Vec(sc:SparkContext,path2Model:String) = Word2VecModel.load(sc, path2Model)
+
+
+  def genWord2Vec(fileRDD:RDD[String] ,output:String): Unit ={
+    val input = fileRDD.map(_.split(" "))
+    val word2vec = new Word2Vec()
+    val model = word2vec.fit(input.map(_.toSeq))
+    model.save(fileRDD.sparkContext, output)
+  }
+
+
+  def genPmi(rdd: RDD[String]): RDD[((String, String), Double)] = {
+    val sc = rdd.sparkContext
+    val fileRDD = sc.parallelize(rdd.map(_.split(" ")).reduce((x, y) => x ++ y)).map((_, 1))
+    val allTerms = fileRDD.reduceByKey((x, y) => x + y)
+    val termCountMap = Map(allTerms.collect(): _*)
+    val totalWordNum = fileRDD.count().toDouble
+
+    val rddFunc = new RDDFunctions(fileRDD)
+    val pairs = rddFunc.sliding(2).map(arr =>
+      (((arr(0)._1, termCountMap.getOrElse(arr(0)._1, 1)), (arr(1)._1, termCountMap.getOrElse(arr(1)._1, 1))), 1)
+    ).reduceByKey((x, y) => x + y)
+
+    sc.broadcast(termCountMap)
+    sc.broadcast(totalWordNum)
+    //pair: ( ((String, Int),(String, Int)) , Int)
+    val pmi = pairs.map { pair =>
+      val x = pair._1._1
+      val y = pair._1._2
+      val pXandY = pair._2.toDouble / totalWordNum
+      val pX = x._2.toDouble / totalWordNum
+      val pY = y._2.toDouble / totalWordNum
+      val pmi = Math.log(pXandY / (pX * pY))
+      ((x._1, y._1), pmi)
+    }
+    pmi
+  }
+
+
+  def cooccurrence(rdd: RDD[String]): RDD[((String, String), Int)] = {
+    val sc = rdd.sparkContext
+    val fileRDD = sc.makeRDD(rdd.map(_.split(" ")).reduce((x, y) => x ++ y))
+    val rddFunc = new RDDFunctions(fileRDD)
+    val res = rddFunc.sliding(2).map(arr => (arr(0), arr(1))).map(tuple => (tuple, 1))
+    res.reduceByKey((x, y) => x + y)
+  }
+
+
+  def sortByCount(rdd: RDD[((String, String), Int)], topN: Int): Array[((String, String), Int)] = {
+    rdd.top(topN)(new Ordering[((String, String), Int)]() {
+      def compare(x: ((String, String), Int), y: ((String, String), Int)): Int =
+        Ordering[Int].compare(x._2, y._2)
+    })
+  }
+
+
+  def sortByPmi(rdd: RDD[((String, String), Double)], topN: Int): Array[((String, String), Double)] = {
+    rdd.top(topN)(new Ordering[((String, String), Double)]() {
+      def compare(x: ((String, String), Double), y: ((String, String), Double)): Int =
+        Ordering[Double].compare(x._2, y._2)
+    })
+  }
+
+
+}
+
+/*
+  def someShit(sc:SparkContext): Unit ={
     val sqlContext = new SQLContext(sc)
     println("Reading file from HDFS")
     val dfsFilename = dfsDirPath + "/news_word.txt"
     val fileRDD = sc.textFile(dfsFilename)
-
+    // val fileRDD = sc.textFile("hdfs://bigboost-spark:9000/testData/news_word.txt")
     val input = fileRDD.map(_.split(" "))
     val word2vec = new Word2Vec()
     val model = word2vec.fit(input.map(_.toSeq))
 
     val allTerms = sc.makeRDD(input.reduce((x, y) => x ++ y))
-    val indexedAllTerms = allTerms.zipWithIndex().map { case (v, k) => (k, v) }
-
     val distinctSet = sc.makeRDD(fileRDD.map(_.split(" ").distinct).reduce((x, y) => x ++ y))
-    val indexedDistinctSet = distinctSet.zipWithIndex().map { case (v, k) => (k, v) }
-
     val distinctJoinSet = distinctSet.cartesian(distinctSet).map(data => (data._1, data._2, 0))
+
+    val indexedAllTerms = allTerms.zipWithIndex().map { case (v, k) => (k, v) }
+    val indexedDistinctSet = distinctSet.zipWithIndex().map { case (v, k) => (k, v) }
     val indexedDistinctJoinSet = distinctJoinSet.zipWithIndex().map { case (v, k) => (k, v) }
+    import sqlContext.implicits._
+    val df = distinctJoinSet.toDF("word1", "word2", "count")
 
 
     val indexedVectorInModel = distinctSet.flatMap { term =>
@@ -105,20 +164,22 @@ object CooccurrenceAnalysis {
       }
     }.zipWithIndex().map { case (v, k) => (k, v) }
 
-    val jdbcRDD = new JdbcRDD( sc, () => {
-          Class.forName("com.mysql.jdbc.Driver").newInstance()
-          DriverManager.getConnection("jdbc:mysql://bigboost-mysql:3306/DATA", "root", "")
-        },
-        "SELECT content FROM mysqltest WHERE ID >= ? AND ID <= ?", 1, 100, 3,
+    def genConnection() = {
+      Class.forName("com.mysql.jdbc.Driver").newInstance()
+      DriverManager.getConnection("jdbc:mysql://bigboost-mysql:3306/DATA", "root", "")
+    }
+    val prop = new Properties()
+    prop.put("user", "root")
+    prop.put("password", "")
+    df.write.jdbc("jdbc:mysql://bigboost-mysql:3306/DATA", "table1", prop)
+    val jdbcRDD = new JdbcRDD(sc, genConnection,
+      "SELECT content FROM mysqltest WHERE ID >= ? AND ID <= ?", 1, 100, 3,
       resultSet => resultSet.getString(1)
     ).cache()
 
     print(jdbcRDD.filter(_.contains("success")).count())
 
 
-    //    indexedDistinctJoinSet.foreach( case(word1,word2,index)
-    //        model.transform(_)
-    //      )
     //dataFrame.registerTempTable("cooccurrence")
     val indexKey = allTerms.zipWithIndex().map { case (k, v) => (v, k) }.cache()
     val boundary = indexKey.count()
@@ -129,45 +190,9 @@ object CooccurrenceAnalysis {
 
       }
     }
-    sc.stop()
   }
 
-  def Cooccurrence(user_rdd: RDD[(String, String, Double)]): (RDD[(String, String, Double)]) = {
+*/
 
-    //  0 数据做准备
-    val user_rdd2 = user_rdd.map(f => (f._1, f._2)).sortByKey()
-    user_rdd2.cache
-
-    //  1 (用户：物品)笛卡尔积 (用户：物品) =>物品:物品组合
-    val user_rdd3 = user_rdd2.cartesian(user_rdd2)
-    val user_rdd4 = user_rdd3.map(data => (data._2, 1))
-
-    //  2 物品:物品:频次
-    val user_rdd5 = user_rdd4.reduceByKey((x, y) => x + y)
-
-    //  3 对角矩阵
-    val user_rdd6 = user_rdd5.filter(f => f._1._1 == f._1._2)
-
-    //  4 非对角矩阵
-    val user_rdd7 = user_rdd5.filter(f => f._1._1 != f._1._2)
-
-    //  5 计算同现相似度（物品1，物品2，同现频次）
-    val user_rdd8 = user_rdd7.map(f =>
-      (f._1._1, (f._1._1, f._1._2, f._2))
-    ).join(
-        user_rdd6.map(f => (f._1._1, f._2))
-      )
-    val user_rdd9 = user_rdd8.map(f =>
-      (f._2._1._2, (f._2._1._1, f._2._1._2, f._2._1._3, f._2._2))
-    )
-    val user_rdd10 = user_rdd9.join(user_rdd6.map(f => (f._1._1, f._2)))
-    val user_rdd11 = user_rdd10.map(f => (f._2._1._1, f._2._1._2, f._2._1._3, f._2._1._4, f._2._2))
-    val user_rdd12 = user_rdd11.map(f => (f._1, f._2, f._3 / sqrt(f._4 * f._5)))
-
-    //   6结果返回
-    user_rdd12
-  }
-
-}
 
 
