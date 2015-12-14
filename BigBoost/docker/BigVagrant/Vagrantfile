@@ -58,10 +58,9 @@ config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-spark"
       d.image = "droyuki/bigboost-spark:lab-v1"
-     # d.link("bigboost-mongodb:bigboost-mongodb")
       d.ports = ["5555:8080","4040:4040","8081:8081","4042:4042","7077:7077", "4041:4041", "19999:9999", "50070:50070", "9001:9001", "8888:8888"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro", "/Racademy:/opt/Racademy"]
-      #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.create_args = ["--memory", "6g"]
       d.link("bigboost-mysql:bigboost-mysql")
       d.link("bigboost-kafka:bigboost-kafka")
       d.env = {
@@ -78,10 +77,10 @@ config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-sparkWorker3"
       d.image = "droyuki/bigboost-spark:lab-v1"
-     # d.link("bigboost-mongodb:bigboost-mongodb")
       d.ports = ["35555:8080","34040:4040","38081:8081","34042:4042","37077:7077", "34041:4041", "49000:9000"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
       #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.create_args = ["--memory", "6g"]
       d.link("bigboost-spark:bigboost-spark")
       d.link("bigboost-mysql:bigboost-mysql")
       d.link("bigboost-kafka:bigboost-kafka")
@@ -99,10 +98,9 @@ config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-sparkWorker2"
       d.image = "droyuki/bigboost-spark:lab-v1"
-     # d.link("bigboost-mongodb:bigboost-mongodb")
       d.ports = ["25555:8080","24040:4040","28081:8081","24042:4042","27077:7077", "24041:4041", "39000:9000"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
-      #d.create_args = ["--volumes-from", "bigboost-kafka"]
+      d.create_args = ["--memory", "6g"]
       d.link("bigboost-spark:bigboost-spark")
       d.link("bigboost-mysql:bigboost-mysql")
       d.link("bigboost-kafka:bigboost-kafka")
@@ -120,7 +118,7 @@ config.vm.define "kafka" do |node|
     node.vm.provider "docker" do |d|
       d.name = "bigboost-sparkWorker"
       d.image = "droyuki/bigboost-spark:lab-v1"
-     # d.link("bigboost-mongodb:bigboost-mongodb")
+      d.create_args = ["--memory", "6g"]
       d.link("bigboost-kafka:bigboost-kafka")
       d.link("bigboost-spark:bigboost-spark")
       d.link("bigboost-mysql:bigboost-mysql")
@@ -128,7 +126,6 @@ config.vm.define "kafka" do |node|
       d.link("bigboost-sparkWorker3:bigboost-sparkWorker3")
       d.ports = ["15555:8080","14040:4040","18081:8081","14042:4042","17077:7077", "14041:4041", "29000:9000"]
       d.volumes = ["#{log_mnt_path}:/opt/data", "#{config_path}/spark:/opt/spark/conf", "#{currentDir}/NAS:/NAS", "/vagrant/BigBoost:/opt/BigBoost", "/etc/localtime:/etc/localtime:ro"]
-      #d.create_args = ["--volumes-from", "bigboost-kafka"]
       d.env = {
         "LANG"=>"C.UTF-8"
       }
