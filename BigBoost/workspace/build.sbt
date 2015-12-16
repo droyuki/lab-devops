@@ -7,7 +7,8 @@ libraryDependencies ++= Dependencies.SparkLib
 libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.6",
   "org.apache.httpcomponents" % "httpclient" % "4.4.1",
-  "org.json4s" %% "json4s-jackson" % "3.2.10"
+  "org.json4s" %% "json4s-jackson" % "3.2.10",
+  "org.jsoup" % "jsoup" % "1.8.3"
 )
 
 //some libs will force upgrade scala version.

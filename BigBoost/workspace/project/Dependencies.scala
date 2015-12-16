@@ -22,6 +22,7 @@ object Library {
   val sparkGraphX    	= "org.apache.spark"  %% "spark-graphx"             % Version.spark
   val sparkMlLib        = "org.apache.spark" %% "spark-mllib"             % Version.spark
   val sparkStreamKafka  = "org.apache.spark"  %% "spark-streaming-kafka"  % Version.spark
+  val sparkStreamTwitter = "org.apache.spark" % "spark-streaming-twitter_2.10" % Version.spark
 }
 
 object Dependencies {
@@ -35,6 +36,7 @@ object Dependencies {
     sparkGraphX 	% "provided",
     sparkMlLib % "provided",
     sparkStreamKafka,
+    sparkStreamTwitter,
     scalaTest      	% "test",
     akkaActor,
     akkaTestKit,

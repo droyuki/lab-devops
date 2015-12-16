@@ -47,6 +47,48 @@ def gen_dict(folder_path, output_file):
     print("Output: %s" % output_file)
 
 
+def only_cut(folder_path, output_file):
+    title_counter = 0
+    f = open(output_file, 'a+')
+    for filename in os.listdir(folder_path):
+        if filename.startswith('.'):
+            continue
+        os.chdir(folder_path)
+        if os.path.isfile(filename):
+            title_counter += 1
+            content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
+            words = jieba.cut(content, cut_all=False, HMM=False)
+            word_list = list(words)
+            p = re.compile('[一-龥]')
+            for word in word_list:
+                if p.match(word) and len(word) > 1:
+                    f.write(word.encode('utf-8') + " ".encode('utf-8'))
+            f.write("\n".encode('utf-8'))
+    f.close()
+    print("\nParse %s articles" % title_counter)
+    print("Output: %s" % output_file)
+
+
+def only_extract(path, output_file):
+    f = open(output_file, 'a+')
+    title_counter = 0
+    for filename in os.listdir(path):
+        if filename.startswith('.'):
+            continue
+        os.chdir(path)
+        if os.path.isfile(filename):
+            title_counter += 1
+            content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
+            all_words = pseg.cut(content, HMM=False)
+            word_list = list(all_words)
+            pattern = re.compile('[一-龥]')
+            for word in word_list:
+                if pattern.match(word.word) and len(word.word) > 1:
+                    f.write(word.word.encode('utf-8') + "/".encode('utf-8') + word.flag.encode('utf-8') + " ".encode('utf-8'))
+    f.close()
+    print("\nParse %s articles" % title_counter)
+    print("Output: %s" % output_file)
+
 def extract(path, output_file):
     f = open(output_file, 'a+')
     dict_set = set()
@@ -158,7 +200,7 @@ def main(argv):
                     extract(path, output_file)
                 elif len(argv) == 2:
                     output_file = desktop + u'/新聞斷詞_' + dt + '.txt'
-                    gen_dict(path, output_file)
+                    only_cut(path, output_file)
                 else:
                     show_hint()
             elif option == 's':
