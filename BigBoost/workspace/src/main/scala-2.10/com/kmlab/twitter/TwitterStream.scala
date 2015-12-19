@@ -1,7 +1,7 @@
 package com.kmlab.twitter
 
 import com.kmlab.utils.CreateSparkContext
-import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.twitter.TwitterUtils
 
 /**
@@ -28,35 +28,29 @@ object TwitterStream extends CreateSparkContext {
 
     def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String): StreamingContext = {
       val ssc = createContext(AppName, checkpointDirectory, timeframe.toLong)
-      //val stream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topics)
       val stream = TwitterUtils.createStream(ssc, None, filters)
-      val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
+      //      val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
+      //val hashTags = stream.flatMap(status => status.getText.split(" "))
 
-      val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
-        .map{case (topic, count) => (count, topic)}
-        .transform(_.sortByKey(false))
+      stream.foreachRDD { (rdd, time) =>
+        rdd.map(t =>
 
-      val topCounts10 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(10))
-        .map{case (topic, count) => (count, topic)}
-        .transform(_.sortByKey(false))
+          t.getText
+        )
+        //      val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
+        //        .map { case (topic, count) => (count, topic) }
+        //        .transform(_.sortByKey(false))
 
-
-      // Print popular hashtags
-      topCounts60.foreachRDD(rdd => {
-        val topList = rdd.take(10)
-        println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
-        topList.foreach{case (count, tag) => println("%s (%s tweets)".format(tag, count))}
-      })
-
-      topCounts10.foreachRDD(rdd => {
-        val topList = rdd.take(10)
-        println("\nPopular topics in last 10 seconds (%s total):".format(rdd.count()))
-        topList.foreach{case (count, tag) => println("%s (%s tweets)".format(tag, count))}
-      })
+        // Print popular hashtags
+        //      topCounts60.foreachRDD(rdd => {
+        //        val topList = rdd.take(10)
+        //        println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
+        //        topList.foreach { case (count, tag) => println("%s (%s tweets)".format(tag, count)) }
+        //      })
+      }
       ssc
+
     }
-
-
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
         function2CreateContext("Twitter Streaming", checkpointDirectory, timeframe)
@@ -64,6 +58,7 @@ object TwitterStream extends CreateSparkContext {
     )
     ssc.start()
     ssc.awaitTermination()
+
   }
 
 }
