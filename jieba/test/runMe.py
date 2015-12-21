@@ -47,6 +47,31 @@ def gen_dict(folder_path, output_file):
     print("Output: %s" % output_file)
 
 
+def gen_dict_by_article(folder_path, output_file):
+    title_counter = 0
+    dict_set = set()
+    f = open(output_file, 'a+')
+    for filename in os.listdir(folder_path):
+        if filename.startswith('.'):
+            continue
+        os.chdir(folder_path)
+        if os.path.isfile(filename):
+            title_counter += 1
+            # f.write(str(title_counter).encode('utf-8') + ". ".encode('utf-8') +
+            # filename.encode('utf-8') + "\n".encode('utf-8'))
+            content = open(filename.encode(sys.getfilesystemencoding()), 'r').read()
+            words = jieba.cut(content, cut_all=False, HMM=False)
+            word_set = set(list(words))
+            p = re.compile('[一-龥]')
+            for word in word_set:
+                if p.match(word) and len(word) > 1:
+                    f.write(word.encode('utf-8') + "\n".encode('utf-8'))
+            f.write(word.encode('utf-8') + "\n".encode('utf-8'))
+    f.close()
+    print("\nParse %s articles" % title_counter)
+    print("Output: %s" % output_file)
+
+
 def only_cut(folder_path, output_file):
     title_counter = 0
     f = open(output_file, 'a+')
@@ -88,6 +113,7 @@ def only_extract(path, output_file):
     f.close()
     print("\nParse %s articles" % title_counter)
     print("Output: %s" % output_file)
+
 
 def extract(path, output_file):
     f = open(output_file, 'a+')
@@ -200,7 +226,7 @@ def main(argv):
                     extract(path, output_file)
                 elif len(argv) == 2:
                     output_file = desktop + u'/新聞斷詞_' + dt + '.txt'
-                    only_cut(path, output_file)
+                    gen_dict_by_article(path, output_file)
                 else:
                     show_hint()
             elif option == 's':
