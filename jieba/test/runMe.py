@@ -49,7 +49,6 @@ def gen_dict(folder_path, output_file):
 
 def gen_dict_by_article(folder_path, output_file):
     title_counter = 0
-    dict_set = set()
     f = open(output_file, 'a+')
     for filename in os.listdir(folder_path):
         if filename.startswith('.'):
@@ -65,8 +64,8 @@ def gen_dict_by_article(folder_path, output_file):
             p = re.compile('[一-龥]')
             for word in word_set:
                 if p.match(word) and len(word) > 1:
-                    f.write(word.encode('utf-8') + "\n".encode('utf-8'))
-            f.write(word.encode('utf-8') + "\n".encode('utf-8'))
+                    f.write(word.encode('utf-8') + " ".encode('utf-8'))
+            f.write("\n".encode('utf-8'))
     f.close()
     print("\nParse %s articles" % title_counter)
     print("Output: %s" % output_file)

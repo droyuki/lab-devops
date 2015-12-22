@@ -29,25 +29,32 @@ object TwitterStream extends CreateSparkContext {
     def function2CreateContext(AppName: String, checkpointDirectory: String, timeframe: String): StreamingContext = {
       val ssc = createContext(AppName, checkpointDirectory, timeframe.toLong)
       val stream = TwitterUtils.createStream(ssc, None, filters)
+      stream.foreachRDD{rdd =>
+        //filter(status => status.getPlace.getName != "Taiwan").
+        rdd.foreach{status =>
+          //val words = status.getText.split(" ").mkString(", ")
+          println(status.getPlace.getName)
+          println(status.getText)
+        }
+      }
       //      val hashTags = stream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")))
       //val hashTags = stream.flatMap(status => status.getText.split(" "))
-
-      stream.foreachRDD { (rdd, time) =>
-        rdd.map(t =>
-
-          t.getText
-        )
-        //      val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
-        //        .map { case (topic, count) => (count, topic) }
-        //        .transform(_.sortByKey(false))
-
-        // Print popular hashtags
-        //      topCounts60.foreachRDD(rdd => {
-        //        val topList = rdd.take(10)
-        //        println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
-        //        topList.foreach { case (count, tag) => println("%s (%s tweets)".format(tag, count)) }
-        //      })
-      }
+//      stream.foreachRDD { (rdd, time) =>
+//        rdd.map(t =>
+//
+//          t.getText
+//        )
+//        //      val topCounts60 = hashTags.map((_, 1)).reduceByKeyAndWindow(_ + _, Seconds(60))
+//        //        .map { case (topic, count) => (count, topic) }
+//        //        .transform(_.sortByKey(false))
+//
+//        // Print popular hashtags
+//        //      topCounts60.foreachRDD(rdd => {
+//        //        val topList = rdd.take(10)
+//        //        println("\nPopular topics in last 60 seconds (%s total):".format(rdd.count()))
+//        //        topList.foreach { case (count, tag) => println("%s (%s tweets)".format(tag, count)) }
+//        //      })
+//      }
       ssc
 
     }
