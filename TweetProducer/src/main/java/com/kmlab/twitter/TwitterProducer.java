@@ -68,7 +68,7 @@ public class TwitterProducer {
                 // the raw JSON of a tweet
                 //logger.info(status.getUser().getScreenName() + ": " + status.getText());
                 String msg = "";
-                if (!status.getLang().equalsIgnoreCase("zh")) {
+                if (!status.getLang().equalsIgnoreCase("zh-tw")) {
                     msg = status.getText();
                 }
                 //KeyedMessage<String, String> data = new KeyedMessage<String, String>("twitter.live", DataObjectFactory.getRawJSON(status));
