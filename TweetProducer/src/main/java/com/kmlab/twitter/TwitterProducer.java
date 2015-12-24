@@ -72,7 +72,7 @@ public class TwitterProducer {
                     msg = status.getText();
                 }
                 //KeyedMessage<String, String> data = new KeyedMessage<String, String>("twitter.live", DataObjectFactory.getRawJSON(status));
-                KeyedMessage<String, String> data = new KeyedMessage<String, String>("twitter.live", msg);
+                KeyedMessage<String, String> data = new KeyedMessage<String, String>("data.raw", msg);
                 producer.send(data);
             }
 

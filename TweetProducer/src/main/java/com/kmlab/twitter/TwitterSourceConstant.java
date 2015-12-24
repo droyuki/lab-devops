@@ -12,5 +12,5 @@ public class TwitterSourceConstant {
     public static final String BROKER_LIST = "bigboost-kafka:9092";
     public static final String SERIALIZER = "serializer.class";
     public static final String REQUIRED_ACKS = "request.required.acks";
-    public static final String KAFKA_TOPIC = "twitter.proc";
+    public static final String KAFKA_TOPIC = "data.raw";
 }
