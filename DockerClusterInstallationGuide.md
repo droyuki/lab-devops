@@ -27,6 +27,7 @@ $ sudo docker pull swarm
 ```sh
 $ curl -sSL https://shipyard-project.com/deploy | bash -s
 ```
+
 2. 各節點上
 ```sh
 curl -sSL https://shipyard-project.com/deploy | ACTION=node DISCOVERY=etcd://140.119.19.231:4001 bash -s
