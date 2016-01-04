@@ -1,12 +1,13 @@
 # Docker Cluster Installation Guide
 ---
-Java
 ###### 前置作業
-#### 1. Install Docker. (Follow official website.)
+ - JDK
+ - Openssh
+ - set root password
 ```sh
-#set root password
 $ sudo passwd root
 ```
+####  1. Install Docker (Follow official website.)
 Create the docker group and add your user.
 ```sh
 $ sudo usermod -aG docker username
@@ -14,20 +15,28 @@ $ sudo usermod -aG docker username
 #Verify your work by running docker without sudo
 ```
 
-#### 2. Install Docker machine. (https://docs.docker.com/machine/install-machine/)
+#### 2.  Install Docker machine. (https://docs.docker.com/machine/install-machine/)
 ```sh
 $ curl -L https://github.com/docker/machine/releases/download/v0.5.3/docker-machine_linux-amd64 >/usr/local/bin/docker-machine
 $ chmod +x /usr/local/bin/docker-machine
 ```
 
-#### 3. pull swarm image
+####  3. Pull swarm image
 ```sh
 $ sudo docker pull swarm
 ```
-
 ----
-#### 來吧
-# 使用 Shipyard
+#### 三種方式
+1. Rancher
+2. Shipyard
+3. Manual
+3.1  Discovery service backend
+3.2 Cluster list
+
+# Rancher
+### [Quick Start Guide](http://docs.rancher.com/rancher/quick-start-guide/)
+
+# Shipyard
 
 1. 在Master上
 ```sh
@@ -40,7 +49,7 @@ curl -sSL https://shipyard-project.com/deploy | ACTION=node DISCOVERY=etcd://140
 ```
 ---
 
-# 不使用Shipyard
+# Manual
 
 #### Swarm 管理cluster前，所有節點上 docker daemon 的port都要改成 0.0.0.0:2375
 ```sh
@@ -80,14 +89,14 @@ echo ip2:2375 >> cluster
 ```sh
 sudo docker run -d -p 2376:2375 -v $(pwd)/cluster:/tmp/cluster swarm manage file:///tmp/cluster
 ```
-----
+
 #### 安裝完成
 ```sh
 $ docker -H 140.119.19.231:2376 run -d -p 50070:50070 --name=bigboost-sparkWorker3 --hostname=bigboost-spark --link=stormtimeseries/bigboost-spark:stormtimeseries/bigboost-spark droyuki/bigboost-spark:lab-v1 start-sparkWorker.sh
 ```
 
 ----
-#### Useful scripts
+### Useful scripts
 ```sh
 #Get IP from HOSTNAME
 $ getent hosts unix.stackexchange.com | awk '{ print $1 }'
