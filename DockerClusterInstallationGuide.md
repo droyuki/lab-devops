@@ -1,5 +1,6 @@
 # Docker Cluster Installation Guide
 ---
+Java
 ###### 前置作業
 #### 1. Install Docker. (Follow official website.)
 ```sh
@@ -14,6 +15,11 @@ $ sudo usermod -aG docker username
 ```
 
 #### 2. Install Docker machine. (https://docs.docker.com/machine/install-machine/)
+```sh
+$ curl -L https://github.com/docker/machine/releases/download/v0.5.3/docker-machine_linux-amd64 >/usr/local/bin/docker-machine
+$ chmod +x /usr/local/bin/docker-machine
+```
+
 #### 3. pull swarm image
 ```sh
 $ sudo docker pull swarm
@@ -30,6 +36,7 @@ $ curl -sSL https://shipyard-project.com/deploy | bash -s
 2. 各節點上
 ```sh
 curl -sSL https://shipyard-project.com/deploy | ACTION=node DISCOVERY=etcd://140.119.19.231:4001 bash -s
+
 ```
 ---
 
@@ -77,4 +84,14 @@ sudo docker run -d -p 2376:2375 -v $(pwd)/cluster:/tmp/cluster swarm manage file
 #### 安裝完成
 ```sh
 $ docker -H 140.119.19.231:2376 run -d -p 50070:50070 --name=bigboost-sparkWorker3 --hostname=bigboost-spark --link=stormtimeseries/bigboost-spark:stormtimeseries/bigboost-spark droyuki/bigboost-spark:lab-v1 start-sparkWorker.sh
+```
+
+----
+#### Useful scripts
+```sh
+#Get IP from HOSTNAME
+$ getent hosts unix.stackexchange.com | awk '{ print $1 }'
+
+#Get internal IP (rancher)
+$ ip addr | grep inet | grep 10.42 | tail -1 | awk '{print $2}' | awk -F\/ '{print $1}'
 ```
