@@ -29,9 +29,9 @@ $ sudo docker pull swarm
 #### 三種方式
 1. Rancher
 2. Shipyard
-3. Manual
-3.1  Discovery service backend
-3.2 Cluster list
+3. Manual  
+    3.1  Discovery service backend  
+    3.2 Cluster list
 
 # Rancher
 ### [Quick Start Guide](http://docs.rancher.com/rancher/quick-start-guide/)
