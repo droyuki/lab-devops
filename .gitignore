@@ -5,6 +5,7 @@
 *.class
 *.[Cc]ache
 BigBoost/project/target/
+BigBoost/workspace/project/target/
 BigBoost/project/project/project/
 BigBoost/project/project/target/
 Scala-Python/target/
@@ -14,3 +15,7 @@ Scala-Python/project/target/
 jieba/
 scala-python-example/
 jep/
+BigBoost/Ansj/
+BigBoost/News/
+BigBoost/workspace/target/
+BigBoost/docker/
