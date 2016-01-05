@@ -7,7 +7,7 @@
 ```sh
 $ sudo passwd root
 ```
-####  1. Install Docker (Follow official website.)
+####  1. Install Docker (Follow official [website](https://docs.docker.com/engine/installation/ubuntulinux/).)
 Create the docker group and add your user.
 ```sh
 $ sudo usermod -aG docker username
