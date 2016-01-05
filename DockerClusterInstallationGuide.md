@@ -4,6 +4,9 @@
  - JDK
  - Openssh
  - set root password
+ - vim
+ - screen
+ 
 ```sh
 $ sudo passwd root
 ```
