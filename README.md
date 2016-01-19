@@ -1,5 +1,5 @@
 # lab-devops
-This repository is depreciated.
+This project is not maintained anymore.
 
 Vagrant + ubuntu 14.04 + docker
 
